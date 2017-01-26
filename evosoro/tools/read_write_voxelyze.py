@@ -271,7 +271,7 @@ def write_voxelyze_file(sim, env, individual, run_directory, run_name):
             voxelyze_file.write("<Layer><![CDATA[")
             for y in range(individual.genotype.orig_size_xyz[1]):
                 for x in range(individual.genotype.orig_size_xyz[0]):
-                    voxelyze_file.write("3")
+                    voxelyze_file.write(individual.genotype.fixed_shape[x, y, z])
             voxelyze_file.write("]]></Layer>\n")
         voxelyze_file.write("</Data>\n")
 
