@@ -38,6 +38,7 @@ import sys
 # Appending repo's root dir in the python path to enable subsequent imports
 sys.path.append(os.getcwd() + "/../..")
 
+from evosoro.progetto.shapes.base_mat import *
 from evosoro.base import Sim, Env, ObjectiveDict
 from evosoro.networks import CPPN
 from evosoro.softbot import Genotype, Phenotype, Population
@@ -57,7 +58,7 @@ sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  
 NUM_RANDOM_INDS = 1  # Number of random individuals to insert each generation
 MAX_GENS = 1000  # Number of generations
 POPSIZE = 15  # Population size (number of individuals in the population)
-IND_SIZE = (6, 6, 6)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
+IND_SIZE = (21, 21, 21)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
 SIM_TIME = 5  # (seconds), including INIT_TIME!
 INIT_TIME = 1
 DT_FRAC = 0.9  # Fraction of the optimal integration step. The lower, the more stable (and slower) the simulation.
@@ -82,7 +83,7 @@ np.random.seed(SEED)
 class MyGenotype(Genotype):
     def __init__(self):
         # We instantiate a new genotype for each individual which must have the following properties
-        Genotype.__init__(self, orig_size_xyz=IND_SIZE)
+        Genotype.__init__(self, orig_size_xyz=IND_SIZE, fixed_shape=base_mat)
 
         # The genotype consists of a single Compositional Pattern Producing Network (CPPN),
         # with multiple inter-dependent outputs determining the material constituting each voxel
@@ -91,39 +92,15 @@ class MyGenotype(Genotype):
         # currently hardcoded in tools/read_write_voxelyze.py:
         # (0: empty, 1: passiveSoft, 2: passiveHard, 3: active+, 4:active-),
         # but this can be changed.
-        self.add_network(CPPN(output_node_names=["shape", "muscleOrTissue", "muscleType", "tissueType"]))
+        self.add_network(CPPN(output_node_names=["weight"]))
 
-        self.to_phenotype_mapping.add_map(name="material", tag="<Data>", func=make_material_tree,
-                                          dependency_order=["shape", "muscleOrTissue", "muscleType", "tissueType"], output_type=int)  # BUGFIX: "tissueType" was not listed
-
-        self.to_phenotype_mapping.add_output_dependency(name="shape", dependency_name=None, requirement=None,
-                                                        material_if_true=None, material_if_false="0")
-
-        self.to_phenotype_mapping.add_output_dependency(name="muscleOrTissue", dependency_name="shape",
-                                                        requirement=True, material_if_true=None, material_if_false=None)  # BUGFIX: was material_if_false=1
-
-        self.to_phenotype_mapping.add_output_dependency(name="tissueType", dependency_name="muscleOrTissue",
-                                                        requirement=False, material_if_true="1", material_if_false="2")
-
-        self.to_phenotype_mapping.add_output_dependency(name="muscleType", dependency_name="muscleOrTissue",
-                                                        requirement=True, material_if_true="3", material_if_false="4")
-
+        # Let's map this CPPN output to a VXA tag named <PhaseOffset>
+        self.to_phenotype_mapping.add_map(name="weight", tag="<Weight>",
+                                          func=np.abs)
 
 # Define a custom phenotype, inheriting from the Phenotype class
 class MyPhenotype(Phenotype):
-    def is_valid(self, min_percent_full=0.3, min_percent_muscle=0.1):
-        # override super class function to redefine what constitutes a valid individuals
-        for name, details in self.genotype.to_phenotype_mapping.items():
-            if np.isnan(details["state"]).any():
-                return False
-            if name == "material":
-                state = details["state"]
-                # Discarding the robot if it doesn't have at least a given percentage of non-empty voxels
-                if np.sum(state>0) < np.product(self.genotype.orig_size_xyz) * min_percent_full:
-                    return False
-                # Discarding the robot if it doesn't have at least a given percentage of muscles (materials 3 and 4)
-                if count_occurrences(state, [3, 4]) < np.product(self.genotype.orig_size_xyz) * min_percent_muscle:
-                    return False
+    def is_valid(self):
         return True
 
 
@@ -140,26 +117,6 @@ my_objective_dict = ObjectiveDict()
 # Adding an objective named "fitness", which we want to maximize. This information is returned by Voxelyze
 # in a fitness .xml file, with a tag named "NormFinalDist"
 my_objective_dict.add_objective(name="fitness", maximize=True, tag="<NormFinalDist>")
-
-# Add an objective to minimize the age of solutions: promotes diversity
-my_objective_dict.add_objective(name="age", maximize=False, tag=None)
-
-# Adding another objective called "num_voxels", which we want to minimize in order to minimize
-# the amount of material employed to build the robot, promoting at the same time non-trivial
-# morphologies.
-# This information can be computed in Python (it's not returned by Voxelyze, thus tag=None),
-# which is done by counting the non empty voxels (material != 0) composing the robot.
-my_objective_dict.add_objective(name="num_voxels", maximize=False, tag=None,
-                                node_func=np.count_nonzero, output_node_name="material")
-
-# Adding another objective named "energy", which should be minimized.
-# This information is not returned by Voxelyze (tag=None): it is instead computed in Python.
-# We also specify how energy should be computed, which is done by counting the occurrences of
-# active materials (materials number 3 and 4)
-my_objective_dict.add_objective(name="energy", maximize=False, tag=None,
-                                node_func=partial(count_occurrences, keys=[3, 4]),
-                                output_node_name="material")
-
 
 # Initializing a population of SoftBots
 my_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
