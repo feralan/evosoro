@@ -271,7 +271,7 @@ def write_voxelyze_file(sim, env, individual, run_directory, run_name):
             voxelyze_file.write("<Layer><![CDATA[")
             for y in range(individual.genotype.orig_size_xyz[1]):
                 for x in range(individual.genotype.orig_size_xyz[0]):
-                    voxelyze_file.write(str(individual.genotype.fixed_shape[z][y][x]))
+                    voxelyze_file.write(str(env.fixed_shape[z][y][x]))
             voxelyze_file.write("]]></Layer>\n")
         voxelyze_file.write("</Data>\n")
 
@@ -310,8 +310,16 @@ def write_voxelyze_file(sim, env, individual, run_directory, run_name):
         # end tag
         voxelyze_file.write("</" + details["tag"][1:] + "\n")
 
+
     voxelyze_file.write(
         "</Structure>\n\
+        <Scenarios>\n")
+
+    if env.scenarios is not None:
+        write_scenarios(env, individual, voxelyze_file)
+
+    voxelyze_file.write(
+        "</Scenarios>\n\
         </VXC>\n\
         </VXA>")
     voxelyze_file.close()
@@ -320,3 +328,18 @@ def write_voxelyze_file(sim, env, individual, run_directory, run_name):
     m.update(string_for_md5)
 
     return m.hexdigest()
+
+def write_scenarios(env, individual, voxelyze_file):
+
+    voxelyze_file.write("<NScenarios>" + str(len(env.scenarios)) + "</NScenarios>\n")
+
+    for name, scenario in env.scenarios.iteritems():
+        voxelyze_file.write("<ScenarioName>" + name + "</ScenarioName>\n")
+        voxelyze_file.write("<ScenarioData>\n")
+        for z in range(individual.genotype.orig_size_xyz[2]):
+            voxelyze_file.write("<Layer><![CDATA[")
+            for y in range(individual.genotype.orig_size_xyz[1]):
+                for x in range(individual.genotype.orig_size_xyz[0]):
+                    voxelyze_file.write(str(scenario[z][y][x]))
+            voxelyze_file.write("]]></Layer>\n")
+        voxelyze_file.write("</ScenarioData>\n")

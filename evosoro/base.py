@@ -48,7 +48,7 @@ class Env(VoxCadParams):
 
     def __init__(self, frequency=4.0, gravity_enabled=1, temp_enabled=1, floor_enabled=1, floor_slope=0.0,
                  lattice_dimension=0.01, softest_material=5, material_stiffness=5e+006, sticky_floor=0,
-                 time_between_traces=0, actuation_variance=0):
+                 time_between_traces=0, actuation_variance=0, fixed_shape=None, scenarios=None):
 
         VoxCadParams.__init__(self)
 
@@ -65,7 +65,8 @@ class Env(VoxCadParams):
         self.sticky_floor = sticky_floor
         self.time_between_traces = time_between_traces
         self.actuation_variance = actuation_variance
-
+        self.fixed_shape = fixed_shape
+        self.scenarios = scenarios
 
 class Material(VoxCadParams):
     """Container for VoxCad material parameters."""

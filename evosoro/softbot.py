@@ -10,7 +10,7 @@ from evosoro.tools.utils import sigmoid, xml_format, dominates
 class Genotype(object):
     """A container for multiple networks, 'genetic code' copied with modification to produce offspring."""
 
-    def __init__(self, orig_size_xyz=(6, 6, 6), fixed_shape=None):
+    def __init__(self, orig_size_xyz=(6, 6, 6)):
 
         """
         Parameters
@@ -24,7 +24,6 @@ class Genotype(object):
         self.all_networks_outputs = []
         self.to_phenotype_mapping = GenotypeToPhenotypeMap()
         self.orig_size_xyz = orig_size_xyz
-        self.fixed_shape = fixed_shape
 
     def __iter__(self):
         """Iterate over the networks. Use the expression 'for n in network'."""

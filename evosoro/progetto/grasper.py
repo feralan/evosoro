@@ -39,6 +39,11 @@ import sys
 sys.path.append(os.getcwd() + "/../..")
 
 from evosoro.progetto.shapes.base_mat import *
+from evosoro.progetto.shapes.pyramid_5 import *
+from evosoro.progetto.shapes.pyramid_7 import *
+from evosoro.progetto.shapes.cube_3 import *
+from evosoro.progetto.shapes.cube_5 import *
+
 from evosoro.base import Sim, Env, ObjectiveDict
 from evosoro.networks import CPPN
 from evosoro.softbot import Genotype, Phenotype, Population
@@ -83,7 +88,7 @@ np.random.seed(SEED)
 class MyGenotype(Genotype):
     def __init__(self):
         # We instantiate a new genotype for each individual which must have the following properties
-        Genotype.__init__(self, orig_size_xyz=IND_SIZE, fixed_shape=base_mat)
+        Genotype.__init__(self, orig_size_xyz=IND_SIZE)
 
         # The genotype consists of a single Compositional Pattern Producing Network (CPPN),
         # with multiple inter-dependent outputs determining the material constituting each voxel
@@ -107,8 +112,9 @@ class MyPhenotype(Phenotype):
 # Setting up the simulation object
 my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
 
+scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
 # Setting up the environment object
-my_env = Env(sticky_floor=0, time_between_traces=0)
+my_env = Env(sticky_floor=0, time_between_traces=0, fixed_shape=base_mat, scenarios=scenarios)
 
 # Now specifying the objectives for the optimization.
 # Creating an objectives dictionary
