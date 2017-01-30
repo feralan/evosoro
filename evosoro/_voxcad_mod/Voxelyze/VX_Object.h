@@ -14,12 +14,13 @@ See <http://www.opensource.org/licenses/lgpl-3.0.html> for license details.
 #include <vector>
 #include <iostream>
 #include "Utils/Vec3D.h" //use this for portability, instead of Vec3D()
-#include "Utils/XML_Rip.h" 
+#include "Utils/XML_Rip.h"
 
 /*Written by: Jonathan Hiller (jdh74) */
 class CVXC_Lattice;
 class CVXC_Voxel;
 class CVXC_Structure;
+class CVXC_Scenarios;
 class CVXC_Material;
 
 //!Structure compression modes. Defines the compression type that will be used to store the raw voxel data
@@ -32,9 +33,9 @@ enum CompType {
 };
 
 //The maximum number of layers we'll ever have
-#define LAYERMAX 99999 
+#define LAYERMAX 99999
 
-//!Voxel lattice information class.	
+//!Voxel lattice information class.
 /*!Defines voxel tiling scheme. By default a rectangular lattice is used, but incorporating line and layer offsets allows more complex lattices such as hexagonal close packed (HCP) and Face-centered cubic (FCC).*/
 class CVXC_Lattice //container for information about the lattice of possible voxel locations
 {
@@ -58,7 +59,7 @@ public:
 	vfloat GetYLiO(void) const {return Y_Line_Offset;} //!< Returns the line Y direction offset percentage.
 	vfloat GetXLaO(void) const {return X_Layer_Offset;} //!< Returns the layer X direction offset percentage.
 	vfloat GetYLaO(void) const {return Y_Layer_Offset;} //!< Returns the layer Y direction offset percentage.
-	vfloat GetMaxOffsetX(int yV=5, int zV=5) const; //!<Returns the maximum X offset in the lattice. 
+	vfloat GetMaxOffsetX(int yV=5, int zV=5) const; //!<Returns the maximum X offset in the lattice.
 	vfloat GetMaxOffsetY(int xV=5, int zV=5) const; //!<Returns the maximum Y offset in the lattice.
 
 	//Funtions to modify the lattice
@@ -87,9 +88,9 @@ protected:
 };
 
 enum VoxShapes {
-	VS_SPHERE, 
-	VS_BOX, 
-	VS_CYLINDER, 
+	VS_SPHERE,
+	VS_BOX,
+	VS_CYLINDER,
 	VS_VOXFILE
 };
 
@@ -99,7 +100,7 @@ public:
 	CVXC_Voxel(void) {ClearVoxel();};
 	~CVXC_Voxel(void) {};
 	CVXC_Voxel(const CVXC_Voxel& Voxel) {*this = Voxel;} //copy constructor
-	CVXC_Voxel& operator=(const CVXC_Voxel& RefVoxel); //overload "=" 
+	CVXC_Voxel& operator=(const CVXC_Voxel& RefVoxel); //overload "="
 
 	//I/O function for save/loading
 	void ReadXML(CXML_Rip* pXML);
@@ -136,6 +137,29 @@ protected:
 static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const char defaultReturn = -1;
 
+class CVXC_Scenarios
+{
+public:
+	void init(int, int, int);
+	inline int GetNScenarios(void) const {return nScenarios;};
+	inline char* GetData(int scenario, int Index) const { return scenarios[Index]; };
+	inline std::string GetName(int Index) const { return scenarioNames[Index]; };
+	bool ReadXML(CXML_Rip* pXML, std::string Version = "", std::string* RetMessage = NULL, int X_size=0, int Y_size=0, int Z_size=0);
+	char* loadScenario(int scenarioIndex, char* shape);
+	inline void SetData(int scenarioIndex, int Index, char Data){ scenarios[scenarioIndex][Index] = Data;}
+	inline char GetData(int scenarioIndex, int index){ return scenarios[scenarioIndex][index]; }
+
+
+
+protected:
+	int nScenarios;
+	int X_Voxels;
+	int Y_Voxels;
+	int Z_Voxels;
+	std::vector<char*> scenarios;
+	std::vector<std::string> scenarioNames;
+};
+
 class CVXC_Structure //contains voxel location information in vast 1D array
 {
 public:
@@ -143,7 +167,7 @@ public:
 	CVXC_Structure(int xV, int yV, int zV) {pData = NULL; CreateStructure(xV, yV, zV);};
 	~CVXC_Structure() {DeleteData();};
 	CVXC_Structure(const CVXC_Structure& RefStruct) {*this = RefStruct;}; //copy constructor
-	CVXC_Structure& operator=(const CVXC_Structure& RefStruct); //overload "=" 
+	CVXC_Structure& operator=(const CVXC_Structure& RefStruct); //overload "="
 	char& operator [](int i) const {return GetData(i);}
 
 	//I/O function for save/loading
@@ -212,27 +236,27 @@ public:
 
 
 	// stiffness functions
-	inline void SetStiffness(int Index, double Value) {pStiffness[Index] = Value;} 
+	inline void SetStiffness(int Index, double Value) {pStiffness[Index] = Value;}
 	inline double GetStiffness(int Index) const {return pStiffness[Index];}
 	inline void InitStiffnessArray(int Size) {pStiffness = new double[Size];}
 	inline bool GetEvolvingStiffness(void) {return evolvingStiffness;}
 
 	// stiffness plasticity functions
-	inline void SetStiffnessPlasticityRate(int Index, double Value) {pStiffnessPlasticityRate[Index] = Value;} 
+	inline void SetStiffnessPlasticityRate(int Index, double Value) {pStiffnessPlasticityRate[Index] = Value;}
 	inline double GetStiffnessPlasticityRate(int Index) const {return pStiffnessPlasticityRate[Index];}
 	inline void InitStiffnessPlasticityRateArray(int Size) {pStiffnessPlasticityRate = new double[Size];}
 	inline bool GetUsingStiffnessPlasticity(void) {return stiffnessPlasticity;}
 
 	// evoDevo parameters
-	inline void SetKP(int Index, double Value) {pKP[Index] = Value;} 
+	inline void SetKP(int Index, double Value) {pKP[Index] = Value;}
 	inline double GetKP(int Index) const {return pKP[Index];}
 	inline void InitKPArray(int Size) {pKP = new double[Size];}
-	inline void SetKI(int Index, double Value) {pKI[Index] = Value;} 
+	inline void SetKI(int Index, double Value) {pKI[Index] = Value;}
 	inline double GetKI(int Index) const {return pKI[Index];}
 	inline void InitKIArray(int Size) {pKI = new double[Size];}
-	inline void SetANTIWINDUP(int Index, double Value) {pANTIWINDUP[Index] = Value;} 
+	inline void SetANTIWINDUP(int Index, double Value) {pANTIWINDUP[Index] = Value;}
 	inline double GetANTIWINDUP(int Index) const {return pANTIWINDUP[Index];}
-	inline void InitANTIWINDUPArray(int Size) {pANTIWINDUP = new double[Size];}	
+	inline void InitANTIWINDUPArray(int Size) {pANTIWINDUP = new double[Size];}
 	inline bool GetEvoDevoParameters(void) {return evoDevoParameters;}
 
 
@@ -247,7 +271,7 @@ protected:
 	// double* pSynapseWeigths;
 	// int NumNuerons;
 
-	bool usingPhaseOffset; 
+	bool usingPhaseOffset;
 	double* pPhaseOffsets;
 
 	bool usingInitialVoxelSize;
@@ -283,14 +307,14 @@ protected:
 	int m_SizeOfArray; //keep track of the number of elements in the voxel array
 
 	//non-stored variables
-	bool DataInit; //flag for if the dynamically allocated structure 
+	bool DataInit; //flag for if the dynamically allocated structure
 
 	//functions that should only be used locally
 	void DeleteData(void); //sandbox the creation and destruction...
 	void IniData(int Size);
 };
 
-//!Voxel object class.	
+//!Voxel object class.
 /*!Contains all information to describe a multi-material voxel object.*/
 class CVX_Object
 {
@@ -299,12 +323,13 @@ public:
 	CVX_Object(void); //!< Constructor
 	~CVX_Object(void); //!< Destructor
 	CVX_Object(const CVX_Object& RefObj) {*this = RefObj;} //!< Copy constructor
-	CVX_Object& operator=(const CVX_Object& RefObj); //!< Overload "=" 
+	CVX_Object& operator=(const CVX_Object& RefObj); //!< Overload "="
 
 	//Member classes (see individual descriptiona )
 	CVXC_Lattice Lattice; //!< The one and only CVXC_Lattice object for this voxel object. Describes the lattice to be used.
 	CVXC_Voxel Voxel; //!< The one and only CVXC_Voxel object for this voxel object. Describes the way voxels of this object should be handled in a visualization or simulation.
 	CVXC_Structure Structure; //!< The one and only CVXC_Structure object for this voxel object. Contains the voxel bitmap describing where voxels are present and their material indices for this object.
+	CVXC_Scenarios Scenarios;
 	std::vector<CVXC_Material> Palette; //!< The palette of materials available for use in this object.
 
 	//I/O function for save/loading
@@ -332,7 +357,7 @@ public:
 	bool SetMat(int x, int y, int z, int MatIndex) {return SetMat(GetIndex(x, y, z), MatIndex);} //!< Sets a single voxel to the specified material. Returns true if succesful. Returns false if indices are outside of workspace or material index is not contained within current palette. @param[in] x Integer X index of voxel location to set. @param[in] y Integer Y index of voxel location to set. @param[in] z Integer Z index of voxel location to set.  @param[in] MatIndex Specifies the index within the material palette to set this voxel to.
 	bool SetMat(int StructIndex, int MatIndex); //!< Sets a single voxel to the specified material.
 	bool SetMatFill(int MatIndex); //!< Fills the entire workspace to the specifies material.
-	inline int GetMat(int x, int y, int z) const {return GetMat(GetIndex(x, y, z));} //!< Returns the base material index at this location.  @param[in] x Integer X index of voxel location to get. @param[in] y Integer Y index of voxel location to get. @param[in] z Integer Z index of voxel location to get. 
+	inline int GetMat(int x, int y, int z) const {return GetMat(GetIndex(x, y, z));} //!< Returns the base material index at this location.  @param[in] x Integer X index of voxel location to get. @param[in] y Integer Y index of voxel location to get. @param[in] z Integer Z index of voxel location to get.
 	int GetMat(int StructIndex) const; //!< Returns the base material index at this location.
 	inline CVXC_Material* GetBaseMatAt(int StructIndex) {return &Palette[GetMat(StructIndex)];} //!< Returns a temporary pointer to material at the specified structure location. @param[in] StructIndex The global voxel structure index to query.
 	inline CVXC_Material* GetBaseMat(int MatIndex) {return &Palette[MatIndex];} //!< Returns a temporary pointer to the specified palette material index. @param[in] MatIndex The desired material palette index.
@@ -342,7 +367,7 @@ public:
 	int GetSubMatIndex(int StructIndex, bool* pVisible = NULL) {return GetSubMatIndex(StructIndex, Structure.GetData(StructIndex), pVisible);} //!< Returns the material index of the next sub-material at this location. Entry point into sub-material recursion process. @param[in] StructIndex The global voxel structure index to query. @param[out] pVisible Set to false if this material is currently to be hidden for visualization. Otherwise true.
 	int GetSubMatIndex(int StructIndex, int MatIndex, bool* pVisible = NULL); //!< Returns the material index of the next sub-material at this location.
 	//end dep
-	
+
 	int GetSubMatIndex(int* pXIndex, int* pYIndex, int* pZIndex, int MatIndex, bool* pVisible = NULL);
 	int GetLeafMatIndex(int StructIndex, bool* pVisible = NULL); //!< Returns material index of the leaf material at this location after evaluating all sub materials.
 
@@ -358,14 +383,14 @@ public:
 	inline int GetStArraySize(void) const {return Structure.GetArraySize();} //!< Returns the number of elements in the global voxel structure array.
 	void GetWorkSpace(Vec3D<>* Dim) const; //!< Provides the calculated workspace dimensions in meters.
 	Vec3D<> GetWorkSpace() const; //!< Returns the calculated workspace dimensions in meters.
-	
+
 	//Get information about a voxel (location) within the workspace
 	bool GetXYZ(Vec3D<>* Point, int index, bool WithOff = true) const; //!< Calculates the XYZ coordinates of a voxel.
-	inline bool GetXYZ(Vec3D<>* Point, int x, int y, int z, bool WithOff = true) const {return GetXYZ(Point, GetIndex(x, y, z), WithOff);} //!< Calculates the XYZ coordinates of a voxel. Returns true if a valid location was specified. Otherwise false. The resulting position is given in meters from the origin. @param[out] Point The X, Y, and Z components of the voxel location is stored in this structure. @param[in] x Integer X index of voxel location to get. @param[in] y Integer Y index of voxel location to get. @param[in] z Integer Z index of voxel location to get. 
+	inline bool GetXYZ(Vec3D<>* Point, int x, int y, int z, bool WithOff = true) const {return GetXYZ(Point, GetIndex(x, y, z), WithOff);} //!< Calculates the XYZ coordinates of a voxel. Returns true if a valid location was specified. Otherwise false. The resulting position is given in meters from the origin. @param[out] Point The X, Y, and Z components of the voxel location is stored in this structure. @param[in] x Integer X index of voxel location to get. @param[in] y Integer Y index of voxel location to get. @param[in] z Integer Z index of voxel location to get.
 	inline Vec3D<> GetXYZ(int index, bool WithOff = true) const {Vec3D<> toReturn; if (GetXYZ(&toReturn, index, WithOff)) return toReturn; else return Vec3D<>(-1, -1, -1);} //!< Returns the XYZ coordinates of a voxel. The resulting position if the voxel at the specified global index is given in meters from the origin. @param[in] index The global structural index to query.
-	inline Vec3D<> GetXYZ(int x, int y, int z, bool WithOff = true) const {return GetXYZ(GetIndex(x, y, z), WithOff);} //!< Returns the XYZ coordinates of a voxel. The resulting position if the voxel at the specified X, Y, and Z indices is given in meters from the origin. @param[in] x Integer X index of voxel location to get. @param[in] y Integer Y index of voxel location to get. @param[in] z Integer Z index of voxel location to get. 
+	inline Vec3D<> GetXYZ(int x, int y, int z, bool WithOff = true) const {return GetXYZ(GetIndex(x, y, z), WithOff);} //!< Returns the XYZ coordinates of a voxel. The resulting position if the voxel at the specified X, Y, and Z indices is given in meters from the origin. @param[in] x Integer X index of voxel location to get. @param[in] y Integer Y index of voxel location to get. @param[in] z Integer Z index of voxel location to get.
 	inline Vec3D<> GetXYZPerc(int index) const {return GetXYZ(index).ScaleInv(GetWorkSpace());} //!< Returns the location of a voxel normalized by the size of workspace. All components are in the range [0.0 to 1.0]. @param[in] index The global structural index to query.
-	inline int GetIndex(int x, int y, int z) const {return Structure.GetIndex(x, y, z);} //!< Returns the global structure index from XYZ indices. @param[in] x Integer X index of voxel location to get. @param[in] y Integer Y index of voxel location to get. @param[in] z Integer Z index of voxel location to get. 
+	inline int GetIndex(int x, int y, int z) const {return Structure.GetIndex(x, y, z);} //!< Returns the global structure index from XYZ indices. @param[in] x Integer X index of voxel location to get. @param[in] y Integer Y index of voxel location to get. @param[in] z Integer Z index of voxel location to get.
 	inline int GetRelativeIndex(int BaseIndex, int rX, int rY, int rZ) {int bX, bY, bZ; GetXYZNom(&bX, &bY, &bZ, BaseIndex); return GetIndex(bX+rX, bY+rY, bZ+rZ);} //!< Returns the global index of the voxel at the specified relative offset from another voxel. Returns -1 if the resulting location is outside of the workspace. The index is returned regardless of whether a voxel is present there or not. @param[in] BaseIndex The global structural index to add offsets to. @param[in] rX Integer X offset from the base voxel to query. @param[in] rY Integer Y offset from the base voxel to query. @param[in] rZ Integer Z offset from the base voxel to query.
 	inline int GetRelativeMatIndex(int BaseIndex, int rX, int rY, int rZ) {return GetMat(GetRelativeIndex(BaseIndex, rX, rY, rZ));} //!< Returns the material index of the voxel at the specified relative offset from another voxel. Returns -1 if invalid material/location. @param[in] BaseIndex The global structural index to add offsets to. @param[in] rX Integer X offset from the base voxel to query. @param[in] rY Integer Y offset from the base voxel to query. @param[in] rZ Integer Z offset from the base voxel to query.
 	inline bool IsVoxRelativeIndex(int BaseIndex, int rX, int rY, int rZ) {int tmpMat = GetMat(GetRelativeIndex(BaseIndex, rX, rY, rZ)); if (tmpMat == 0 || tmpMat == -1) return false; else return true;} //!< Returns true if a voxel is present at the specified relative offset from another voxel. Returns false if empty location, invalid material, or out-of-bounds location. @param[in] BaseIndex The global structural index to add offsets to. @param[in] rX Integer X offset from the base voxel to query. @param[in] rY Integer Y offset from the base voxel to query. @param[in] rZ Integer Z offset from the base voxel to query.
@@ -438,7 +463,7 @@ public:
     inline bool GetUsingStartGrowthTime(void) {return Structure.GetUsingStartGrowthTime(); }
 
 	// stiffness functions
-	inline void SetStiffness(int Index, double Value) {Structure.SetStiffness(Index,Value);} 
+	inline void SetStiffness(int Index, double Value) {Structure.SetStiffness(Index,Value);}
 	inline double GetStiffness(int Index) const {return Structure.GetStiffness(Index);}
 	inline void InitStiffnessArray(int Size) {Structure.InitStiffnessArray(Size);}
 	inline bool GetEvolvingStiffness(void) {return Structure.GetEvolvingStiffness();}
@@ -450,13 +475,13 @@ public:
 	inline bool GetUsingStiffnessPlasticity(void) {return Structure.GetUsingStiffnessPlasticity();}
 
 	// evoDevoParameters function
-	inline void SetKP(int Index, double Value) { Structure.SetKP(Index,Value);  } 
+	inline void SetKP(int Index, double Value) { Structure.SetKP(Index,Value);  }
 	inline double GetKP(int Index) const {return Structure.GetKP(Index); }
 	inline void InitKPArray(int Size) { Structure.InitKPArray(Size); }
-	inline void SetKI(int Index, double Value) { Structure.SetKI(Index,Value);  } 
+	inline void SetKI(int Index, double Value) { Structure.SetKI(Index,Value);  }
 	inline double GetKI(int Index) const {return Structure.GetKI(Index); }
 	inline void InitKIArray(int Size) { Structure.InitKIArray(Size); }
-	inline void SetANTIWINDUP(int Index, double Value) { Structure.SetANTIWINDUP(Index,Value);  } 
+	inline void SetANTIWINDUP(int Index, double Value) { Structure.SetANTIWINDUP(Index,Value);  }
 	inline double GetANTIWINDUP(int Index) const {return Structure.GetANTIWINDUP(Index); }
 	inline void InitANTIWINDUPArray(int Size) { Structure.InitANTIWINDUPArray(Size); }
 	inline bool GetEvoDevoParameters(void) {return Structure.GetEvoDevoParameters();}
@@ -470,7 +495,7 @@ public:
 	void DrawVoxel(Vec3D<>* Center, vfloat Lat_Dim); //Low level (assumes correct GL color, etc have been called
 	void DrawSingleVoxel(int StructIndex); //draws voxel with the correct material color, etc.
 	void DrawVoxel2D(Vec3D<>* Center, vfloat Lat_Dim, Vec3D<>* Normal, bool Fill = false) {Voxel.DrawVoxel2D(Center, Lat_Dim, Normal, Fill);};
-	
+
 
 #endif
 };
@@ -488,7 +513,7 @@ public:
 	CVXC_Material(std::string Name, float r, float g, float b, float a = 1.0, vfloat EMod = 0.0, vfloat Poiss = 0.0); //allow us to create easily
 	CVXC_Material(const CVXC_Material& RefMat) {*this = RefMat;}; //copy constructor
 	~CVXC_Material(void) {DeleteIntStruct();};
-	CVXC_Material& operator=(const CVXC_Material& RefMat); //overload "=" 
+	CVXC_Material& operator=(const CVXC_Material& RefMat); //overload "="
 
 	//I/O function for save/loading
 	void WriteXML(CXML_Rip* pXML, int Compression = CP_ASCIIREADABLE);
@@ -522,7 +547,7 @@ public:
 	void SetCTE(vfloat CTEIn){CTE = CTEIn;}
 	void SetuStatic(vfloat uStaticIn){uStatic = uStaticIn;}
 	void SetuDynamic(vfloat uDynamicIn){uDynamic = uDynamicIn;}
-	void SetMatTempPhase(vfloat MatTmpPhIn) {MaterialTempPhase = MatTmpPhIn;} 
+	void SetMatTempPhase(vfloat MatTmpPhIn) {MaterialTempPhase = MatTmpPhIn;}
 	void SetCurMatTemp(vfloat CurMatTempIn) {CurMaterialTemp = CurMatTempIn;}	//set the local material temperature
 
 	//Dither:
@@ -573,8 +598,8 @@ public:
 	inline vfloat GetuStatic(void) const {return uStatic;}
 	inline vfloat GetuDynamic(void) const {return uDynamic;}
 	inline double GetCurMatTemp(void) {return CurMaterialTemp;}	//return the local material temperature
-	inline double GetMatTempPhase(void) {return MaterialTempPhase;}	//return the phase response of the material to temperature changes (param allows certain materials to warm/cool before/after others) 
-	
+	inline double GetMatTempPhase(void) {return MaterialTempPhase;}	//return the phase response of the material to temperature changes (param allows certain materials to warm/cool before/after others)
+
 	//Dither:
 	inline int GetRandInd1(void) const {return RandIndex1;};
 	inline int GetRandInd2(void) const {return RandIndex2;};
@@ -636,8 +661,3 @@ unsigned long int taus_get(taus_state* state);
 vfloat prsm(vfloat x, vfloat y, vfloat z=0, int k=0);
 
 #endif //CVX_OBJECT_H
-
-
-
-
-

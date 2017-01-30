@@ -25,7 +25,7 @@ See <http://www.opensource.org/licenses/lgpl-3.0.html> for license details.
 #ifdef QT_GUI_LIB
 #include <qgl.h>
 #else
-#include "OpenGLInclude.h" //If not using QT's openGL system, make a header file "OpenGLInclude.h" that includes openGL library functions 
+#include "OpenGLInclude.h" //If not using QT's openGL system, make a header file "OpenGLInclude.h" that includes openGL library functions
 #endif
 #include "Utils/GL_Utils.h"
 #endif
@@ -44,7 +44,7 @@ CVX_Object::~CVX_Object(void)
 CVX_Object& CVX_Object::operator=(const CVX_Object& RefObj)
 {
 	Lattice = RefObj.Lattice;
-	Voxel = RefObj.Voxel; 
+	Voxel = RefObj.Voxel;
 	Structure = RefObj.Structure;
 	Palette = RefObj.Palette;
 
@@ -68,7 +68,7 @@ void CVX_Object::ClearMatter(void) //clears out everything...
 void CVX_Object::InitializeMatter(CVXC_Lattice* pLattice, int xV, int yV, int zV)
 {
 	ClearMatter();
-	
+
 	LoadDefaultPalette();
 	Lattice = *pLattice;
 	Voxel.SetVoxName(VS_BOX);
@@ -77,10 +77,10 @@ void CVX_Object::InitializeMatter(CVXC_Lattice* pLattice, int xV, int yV, int zV
 
 }
 
-/*! If "default.vxc" exists in the current directory this voxel object (including material palette) is loaded. 
+/*! If "default.vxc" exists in the current directory this voxel object (including material palette) is loaded.
 If the file is not found, arbitrary defaults are used.
 */
-void CVX_Object::InitializeMatter(void) //loads default 
+void CVX_Object::InitializeMatter(void) //loads default
 {
 	if(!LoadVXCFile("Default.vxc")){ //try loading default file (must be in working directory)... if not default to 10x 1mm cubes
 
@@ -102,7 +102,7 @@ void CVX_Object::InitializeMatter(void) //loads default
 
 		Lattice.SetLattice(0.001);
 
-		Voxel.SetVoxName(VS_BOX); 
+		Voxel.SetVoxName(VS_BOX);
 		Structure.CreateStructure(10, 10, 10);
 	}
 }
@@ -116,7 +116,7 @@ void CVX_Object::InitializeMatter(void) //loads default
 void CVX_Object::InitializeMatter(vfloat iLattice_Dim, int xV, int yV, int zV) //intializes object with some default params, including dynamic arrays
 {
 	ClearMatter();
-	
+
 	LoadDefaultPalette();
 	Lattice.SetLattice(iLattice_Dim);
 	Voxel.SetVoxName(VS_BOX);
@@ -174,12 +174,12 @@ bool CVX_Object::ReplaceMaterial(int IndexToReplace, int NewIndex, bool DeleteRe
 bool CVX_Object::FlattenMaterial(int IndexToFlatten, std::string* RetMessage) //converts a compound material into its subsidiary materials
 {
 	if (IndexToFlatten < 0 || IndexToFlatten >= (int)Palette.size() || Palette[IndexToFlatten].GetMatType() == SINGLE){ if (RetMessage) *RetMessage += "Cannot Flatten a non-compound material\n"; return false;}
-	
+
 	int LastMatIndex, NextMatIndex;
 	for (int i=0; i<Structure.GetArraySize(); i++){
 		LastMatIndex = Structure.GetData(i);
 		for (int m=0; m<100; m++){ //anything more than 100 iterations is ridiculous
-			if (LastMatIndex == IndexToFlatten) continue; 
+			if (LastMatIndex == IndexToFlatten) continue;
 			NextMatIndex = GetSubMatIndex(i, LastMatIndex);
 			if (LastMatIndex == NextMatIndex) continue; //if reached the end of the iterations
 			LastMatIndex = NextMatIndex;
@@ -285,7 +285,7 @@ bool CVX_Object::LoadVXCFile(std::string filename)
 	CXML_Rip XML;
 	if (!XML.LoadFile(filename)) return false;
 //	if (filename.find(".vxp") != std::string::npos || filename.find(".pal") != std::string::npos)	ReadPaletteXML(&XML); //if this is a VXC file
-//	else 
+//	else
 	ReadXML(&XML); //if thie is a VXP file.
 	return true;
 
@@ -337,7 +337,7 @@ bool CVX_Object::ExportKV6File(std::string filename)
 	fwrite(&NumVox,4,1,fil); //total number of voxels
 
 	//voxel info
-	std::vector<int> XLen; //size XSize 
+	std::vector<int> XLen; //size XSize
 	std::vector<unsigned short> XYLen; //size //XSize*YSize
 	XLen.resize(Xs);
 	XYLen.resize(Xs*Ys);
@@ -348,7 +348,7 @@ bool CVX_Object::ExportKV6File(std::string filename)
 			int NumInThisXY = 0;
 			for (int iZ=Zs-1; iZ>=0; iZ--){ //Z goes top to bottom
 //				int ThisMat = GetMat(iX, iY, iZ);
-				CVXC_Material* pMat = GetLeafMat(GetIndex(iX, iY, iZ)); //this material (gotta look deep in case there's a composite that references erase 
+				CVXC_Material* pMat = GetLeafMat(GetIndex(iX, iY, iZ)); //this material (gotta look deep in case there's a composite that references erase
 				if (pMat->GetName() != "Erase"){ //if there's material here
 					//color!
 					int R, G, B;
@@ -365,7 +365,7 @@ bool CVX_Object::ExportKV6File(std::string filename)
 					//other info
 					unsigned char ThisZ = (unsigned char)Zs-1-iZ; //0 is top
 					fputc(ThisZ,fil); fputc(0,fil); //the z level of this voxel  , zero filler
-					
+
 					unsigned char Vis = 0;
 					int nxInd = GetIndex(iX-1, iY, iZ); if (nxInd == -1 || GetMat(nxInd) == 0) Vis |= 1;
 					int pxInd = GetIndex(iX+1, iY, iZ); if (pxInd == -1 || GetMat(pxInd) == 0) Vis |= 2;
@@ -374,7 +374,7 @@ bool CVX_Object::ExportKV6File(std::string filename)
 					int pzInd = GetIndex(iX, iY, iZ+1); if (pzInd == -1 || GetMat(pzInd) == 0) Vis |= 16;
 					int nzInd = GetIndex(iX, iY, iZ-1); if (nzInd == -1 || GetMat(nzInd) == 0) Vis |= 32;
 
-				
+
 					fputc(Vis,fil); fputc(255,fil); //vis and dir fields. Not sure exactly...
 
 					NumInThisX++;
@@ -457,6 +457,11 @@ void CVX_Object::ReadXML(CXML_Rip* pXML, bool OnlyPal, std::string* RetMessage)
 		Structure.ReadXML(pXML, Version.c_str(), RetMessage);
 		pXML->UpLevel();
 	}
+	if (pXML->FindElement("Scenarios")){
+		Scenarios.ReadXML(pXML, Version, NULL, Structure.GetVXDim(), Structure.GetVYDim(), Structure.GetVZDim());
+
+		pXML->UpLevel(); //Material
+	}
 }
 
 /*! The current level of the XML rip tree should be pointing to a "Palette" tag when this function is called.
@@ -464,7 +469,7 @@ void CVX_Object::ReadXML(CXML_Rip* pXML, bool OnlyPal, std::string* RetMessage)
 @param[in] Version The internal file version number of the file being loaded.
 */
 void CVX_Object::ReadPaletteXML(CXML_Rip* pXML, std::string Version)
-{ 
+{
 	int PrevPalSize = GetNumMaterials(); //store how many materials were in there
 
 	ClearPalette();
@@ -521,7 +526,7 @@ bool CVX_Object::GetXYZ(Vec3D<>* Point, int index, bool WithOff) const //gets th
 		vfloat Eps = (vfloat)0.000001; //hack, offset to make sure its all on the right side of zero
 		vfloat TotalXOffP = (vfloat)0.0; //running variables to add the offsets to. (in percentage of width
 		vfloat TotalYOffP = (vfloat)0.0;
-		
+
 		TotalXOffP = Lattice.GetXLiO()*iy + Lattice.GetXLaO()*iz + Eps; //total offset in x and y
 		TotalYOffP = Lattice.GetYLiO()*ix + Lattice.GetYLaO()*iz + Eps;
 		int NumBackX = ((int)(TotalXOffP/Lattice.GetXDimAdj()));
@@ -543,10 +548,10 @@ bool CVX_Object::GetXYZ(Vec3D<>* Point, int index, bool WithOff) const //gets th
 		*Point = GetLatDimEnv().Scale(Vec3D<>(ix+0.5, iy+0.5, iz+0.5));
 	}
 	return true;
-	
+
 }
 
-/*! Only touching face-to-face is considered, not edge to edge or corner to corner. 
+/*! Only touching face-to-face is considered, not edge to edge or corner to corner.
 For physical simulation, a true result implies that there should be a structural connection between these two voxels.
 Optionally provides the relative location (int meters) from voxel 1 to voxel 2.
 @param[in] Index1 The global structural index of the first voxel to consider.
@@ -554,7 +559,7 @@ Optionally provides the relative location (int meters) from voxel 1 to voxel 2.
 @param[in] IncludeEmpty If set to false, the function returns false if either location has no material.
 @param[out] RelativeLoc The relative location in meters between the first and second voxels.
 */
-bool CVX_Object::IsAdjacent(int Index1, int Index2, bool IncludeEmpty, Vec3D<>* RelativeLoc) 
+bool CVX_Object::IsAdjacent(int Index1, int Index2, bool IncludeEmpty, Vec3D<>* RelativeLoc)
 {
 	vfloat LD = GetLatticeDim();
 	Vec3D<> LD3 = GetLatDimEnv();
@@ -653,7 +658,7 @@ vfloat CVX_Object::GetSurfaceArea()
 			}
 		}
 	}
-	
+
 	Vec3D<> NominalSize = GetLatDimEnv();
 
 	return NominalSize.y*NominalSize.z*NumXExposedFaces + NominalSize.x*NominalSize.z*NumYExposedFaces + NominalSize.x*NominalSize.y*NumZExposedFaces;
@@ -698,7 +703,7 @@ bool CVX_Object::IsInRecursivePath(int MatIndexStart, int MatIndexRef) //returns
 		case SINGLE:
 			if (MatIndexStart == MatIndexRef) return true; //trivial case
 			break;
-		case INTERNAL: 
+		case INTERNAL:
 			for (int i=0; i<GetNumMaterials(); i++){ //check all materials in the palette to see if they're in here
 				if (Palette[MatIndexStart].GetPStructure()->ContainsMatIndex(i)){ //if it contains this current (iterated) material
 					bool FoundRec = IsInRecursivePath(i, MatIndexRef);
@@ -716,7 +721,7 @@ bool CVX_Object::IsInRecursivePath(int MatIndexStart, int MatIndexRef) //returns
 }
 
 /*!
-@param[in] StructIndex The global voxel structure index to query. 
+@param[in] StructIndex The global voxel structure index to query.
 @param[out] pVisible Set to false if this material is currently to be hidden for visualization. Otherwise true.
 */
 int CVX_Object::GetLeafMatIndex(int StructIndex, bool*pVisible) //get the final material to display
@@ -735,7 +740,7 @@ int CVX_Object::GetLeafMatIndex(int StructIndex, bool*pVisible) //get the final 
 }
 
 /*! Used for recursivly determining the leaf material.
-@param[in] StructIndex The global voxel structure index to query. 
+@param[in] StructIndex The global voxel structure index to query.
 @param[in] MatIndex The current sub-material we are evaluating at this location.
 @param[out] pVisible Set to false if this material is currently to be hidden for visualization. Otherwise true.
 */
@@ -751,7 +756,7 @@ int CVX_Object::GetSubMatIndex(int StructIndex, int MatIndex, bool* pVisible)
 
 //	switch (pMat->GetMatType()){
 //		case SINGLE: return MatIndex; break;
-//		case INTERNAL: 
+//		case INTERNAL:
 //			if (pMat->HasLocalStructure()){
 //				x = x - pMat->GetSubXOffset();
 //				y = y - pMat->GetSubYOffset();
@@ -792,7 +797,7 @@ int CVX_Object::GetSubMatIndex(int StructIndex, int MatIndex, bool* pVisible)
 //				while (x<0) x += pMat->GetSubXSize();
 //				while (y<0) y += pMat->GetSubYSize();
 //				while (z<0) z += pMat->GetSubZSize();
-//				
+//
 ////				int LocalStructIndex = pMat->GetPStructure()->GetIndex(x, y, z);
 //				int LocalStructIndex = pMat->GetPStructure()->GetIndex(x, y, z);
 //				return pMat->GetPStructure()->GetData(LocalStructIndex);
@@ -819,7 +824,7 @@ int CVX_Object::GetSubMatIndex(int* pXIndex, int* pYIndex, int* pZIndex, int Mat
 
 	switch (pMat->GetMatType()){
 		case SINGLE: return MatIndex; break;
-		case INTERNAL: 
+		case INTERNAL:
 			if (pMat->HasLocalStructure()){
 
 				//rotation
@@ -843,7 +848,7 @@ int CVX_Object::GetSubMatIndex(int* pXIndex, int* pYIndex, int* pZIndex, int Mat
 					} break;
 					}
 				}
-	
+
 				//offset
 				int fXs = pMat->GetSubXSize(), fYs = pMat->GetSubYSize(), fZs = pMat->GetSubZSize();
 				x = (x - pMat->GetSubXOffset()) % fXs;
@@ -854,7 +859,7 @@ int CVX_Object::GetSubMatIndex(int* pXIndex, int* pYIndex, int* pZIndex, int Mat
 				while (y<0) y += fYs;
 				while (z<0) z += fZs;
 
-				
+
 				*pXIndex = x; *pYIndex = y; *pZIndex = z;
 				int LocalStructIndex = pMat->GetPStructure()->GetIndex(x, y, z);
 				return pMat->GetPStructure()->GetData(LocalStructIndex);
@@ -872,8 +877,8 @@ int CVX_Object::GetSubMatIndex(int* pXIndex, int* pYIndex, int* pZIndex, int Mat
 }
 
 
-/*! Returns true if succesful. Returns false if indices are outside of workspace or material index is not contained within current palette. 
-@param[in] StructIndex Global voxel index of voxel location to set.  
+/*! Returns true if succesful. Returns false if indices are outside of workspace or material index is not contained within current palette.
+@param[in] StructIndex Global voxel index of voxel location to set.
 @param[in] MatIndex Specifies the index within the material palette to set this voxel to.
 */
 bool CVX_Object::SetMat(int StructIndex, int MatIndex) //sets the material index at this location based on the index (advanced users)
@@ -885,7 +890,7 @@ bool CVX_Object::SetMat(int StructIndex, int MatIndex) //sets the material index
 	else return false; //error out
 }
 
-/*! Returns true if succesful. Returns false if material index is not contained within current palette. 
+/*! Returns true if succesful. Returns false if material index is not contained within current palette.
 @param[in] MatIndex Specifies the index within the material palette to set this voxel to.
 */
 bool CVX_Object::SetMatFill(int MatIndex)
@@ -904,7 +909,7 @@ bool CVX_Object::SetMatFill(int MatIndex)
 }
 
 /*! Returns -1 if an invalid structure index was provided.
-@param[in] StructIndex Global voxel index of voxel location to get.  
+@param[in] StructIndex Global voxel index of voxel location to get.
 */
 int CVX_Object::GetMat(int StructIndex) const //returns the material index (at a lattice location)
 {
@@ -936,7 +941,7 @@ void CVX_Object::DrawSingleVoxel(int StructIndex) //draws voxel with the correct
 
 
 	glLoadName (StructIndex); //to enable picking
-	GetXYZ(&Center, StructIndex); 
+	GetXYZ(&Center, StructIndex);
 	Voxel.DrawVoxel(&Center, Lattice.GetLatticeDim()); //draw this voxel if we got this far!
 }
 
@@ -1018,12 +1023,12 @@ CVXC_Lattice& CVXC_Lattice::operator=(const CVXC_Lattice& RefLat)
 	Y_Line_Offset = RefLat.Y_Line_Offset;
 	X_Layer_Offset = RefLat.X_Layer_Offset;
 	Y_Layer_Offset = RefLat.Y_Layer_Offset;
-	
+
 	return *this;
 }
 
 /*!
-	@param[in] LatDimIn The base lattice dimension in meters. 
+	@param[in] LatDimIn The base lattice dimension in meters.
 	@param[in] XDAdjIn The lattice dimension X adjustment percentage. Range [0.0, 1.0].
 	@param[in] YDAdjIn The lattice dimension Y adjustment percentage. Range [0.0, 1.0].
 	@param[in] ZDAdjIn The lattice dimension Z adjustment percentage. Range [0.0, 1.0].
@@ -1034,15 +1039,15 @@ CVXC_Lattice& CVXC_Lattice::operator=(const CVXC_Lattice& RefLat)
 */
 void CVXC_Lattice::SetLattice(vfloat LatDimIn, vfloat XDAdjIn, vfloat YDAdjIn, vfloat ZDAdjIn, vfloat XLiOIn, vfloat YLiOIn, vfloat XLaOIn, vfloat YLaOIn)
 {
-	Lattice_Dim = LatDimIn; 
-	X_Dim_Adj = XDAdjIn; 
-	Y_Dim_Adj = YDAdjIn; 
-	Z_Dim_Adj = ZDAdjIn; 
-	X_Line_Offset = XLiOIn; 
-	Y_Line_Offset = YLiOIn; 
-	X_Layer_Offset = XLaOIn; 
-	Y_Layer_Offset = YLaOIn; 
-}; 
+	Lattice_Dim = LatDimIn;
+	X_Dim_Adj = XDAdjIn;
+	Y_Dim_Adj = YDAdjIn;
+	Z_Dim_Adj = ZDAdjIn;
+	X_Line_Offset = XLiOIn;
+	Y_Line_Offset = YLiOIn;
+	X_Layer_Offset = XLaOIn;
+	Y_Layer_Offset = YLaOIn;
+};
 
 /*!	Lattice must be re-initialized to be used.
 */
@@ -1090,10 +1095,10 @@ void CVXC_Lattice::WriteXML(CXML_Rip* pXML)
 	pXML->UpLevel();
 }
 
-/*!Returns as percentage of the base lattice dimension in the range [0.0, 1.0]. 
-Used to deterime how much to pad bounding box. 
-@param[in] yV Number of Y rows to consider. 
-@param[in] zV Number of Z layers to consider. 
+/*!Returns as percentage of the base lattice dimension in the range [0.0, 1.0].
+Used to deterime how much to pad bounding box.
+@param[in] yV Number of Y rows to consider.
+@param[in] zV Number of Z layers to consider.
 */
 vfloat CVXC_Lattice::GetMaxOffsetX(int yV, int zV) const
 {
@@ -1109,10 +1114,10 @@ vfloat CVXC_Lattice::GetMaxOffsetX(int yV, int zV) const
 	return XMaxOffset;
 }
 
-/*!Returns as percentage of the base lattice dimension in the range [0.0, 1.0]. 
-Used to deterime how much to pad bounding box. 
-@param[in] xV Number of X rows to consider. 
-@param[in] zV Number of Z layers to consider. 
+/*!Returns as percentage of the base lattice dimension in the range [0.0, 1.0].
+Used to deterime how much to pad bounding box.
+@param[in] xV Number of X rows to consider.
+@param[in] zV Number of Z layers to consider.
 */
 vfloat CVXC_Lattice::GetMaxOffsetY(int xV, int zV) const
 {
@@ -1315,7 +1320,7 @@ void CVXC_Material::WriteXML(CXML_Rip* pXML, int Compression)
 				pXML->Element("FailModel", FailModel);
 				pXML->Element("Fail_Stress", Fail_Stress);
 				pXML->Element("Fail_Strain", Fail_Strain);
-				
+
 				pXML->Element("Density", Density);
 				pXML->Element("Poissons_Ratio", Poissons_Ratio);
 				pXML->Element("CTE", CTE);
@@ -1399,7 +1404,7 @@ void CVXC_Material::ReadXML(CXML_Rip* pXML, std::string Version, std::string* Re
 				if (!pXML->FindLoadElement("MaterialTempPhase", &MaterialTempPhase)) MaterialTempPhase = 0;
 				if (!pXML->FindLoadElement("uStatic", &uStatic)) uStatic = 0;
 				if (!pXML->FindLoadElement("uDynamic", &uDynamic)) uDynamic = 0;
-				
+
 				if (!pXML->FindLoadElement("FailModel", &FailModel)){ //smartly set failure mode if not specified specifically...
 					if (Fail_Stress != 0) FailModel = FM_MAXSTRESS;
 					else if (Fail_Strain != 0) FailModel = FM_MAXSTRAIN;
@@ -1496,7 +1501,7 @@ vfloat CVXC_Material::GetModelStress(const vfloat StrainIn, bool* const pIsPastY
 			*pIsPastYielded = true;
 			CalcStress = Yield_Stress + Plastic_Mod*(StrainIn-Yield_Stress/Elastic_Mod);
 			if (FailModel == FM_MAXSTRESS && StrainIn > Fail_Stress/Elastic_Mod) *pIsPastFail = true; //if past fail, we've failed...
-			else if (FailModel == FM_MAXSTRAIN && StrainIn > Fail_Strain) *pIsPastFail = true; 
+			else if (FailModel == FM_MAXSTRAIN && StrainIn > Fail_Strain) *pIsPastFail = true;
 			return CalcStress;
 		}
 
@@ -1527,7 +1532,7 @@ vfloat CVXC_Material::GetModelStress(const vfloat StrainIn, bool* const pIsPastY
 				CalcStress = DStress[NumPts-1] + Slope*(StrainIn-Fail_Strain);
 			}
 		}
-		return CalcStress; 
+		return CalcStress;
 		}
 	}
 	return CalcStress;
@@ -1573,8 +1578,8 @@ bool CVXC_Material::ValidateSSData(std::string* RetMsg) //Does all the checks in
 	Plastic_Mod = Elastic_Mod; //Plastic_Mod is meaningless...
 	Fail_Stress = 0;
 	Fail_Strain = DStrain[NumPts-1]; //the last point in the series will be taken as failure...
-	SetFailModel(FM_MAXSTRAIN); 
-	
+	SetFailModel(FM_MAXSTRAIN);
+
 	//.2% (0.002) offset to find a good yield point...
 	vfloat Mo = Elastic_Mod; //the offset line
 	vfloat Bo = (vfloat)(-0.002*Elastic_Mod);
@@ -1604,6 +1609,73 @@ bool CVXC_Material::ValidateSSData(std::string* RetMsg) //Does all the checks in
 	return true;
 }
 
+////////////////////////////////SCENARIOS////////////////////////////////
+
+void CVXC_Scenarios::init(int x_s, int y_s, int z_s)
+{
+	X_Voxels = x_s;
+	Y_Voxels = y_s;
+	Z_Voxels = z_s;
+
+	scenarioNames = std::vector<std::string>(nScenarios);
+	scenarios = std::vector<char*>(nScenarios);
+
+	for (int i = 0; i < nScenarios; i++) {
+		scenarios[i] = new char[x_s * y_s * z_s];
+	}
+}
+
+bool CVXC_Scenarios::ReadXML(CXML_Rip* pXML, std::string Version, std::string* RetMessage, int X_size, int Y_size, int Z_size)
+{
+	std::string DataIn;
+	std::string RawData;
+
+	if (!pXML->FindLoadElement("NScenarios", &nScenarios)) nScenarios = 1;
+	init(X_size, Y_size, Z_size);
+
+	pXML->FindElement("ScenarioNames");
+	for (int i = 0; i < nScenarios; i++)
+	{
+		pXML->FindLoadElement("ScenarioName", &RawData, true, false);
+		scenarioNames[i] = RawData;
+	}
+	pXML->UpLevel();
+	pXML->UpLevel();
+
+	pXML->FindElement("ScenarioShapes");
+	for (int scenarioIndex = 0; scenarioIndex < nScenarios; scenarioIndex++)
+	{
+		pXML->FindElement("ScenarioData");
+
+		for (int i=0; i<Z_size; i++)
+		{
+			pXML->FindLoadElement("Layer", &RawData, true, true);
+
+			DataIn.resize(RawData.size());
+			for (int i=0; i<(int)RawData.size(); i++)
+			{
+			  DataIn[i] = RawData[i]-48;
+			}
+
+			if (DataIn.length() != X_size*Y_size){
+			  if (RetMessage) *RetMessage += "Voxel layer data not present or does not match expected size.";
+				return false;
+			}
+
+			for(int k=0; k<X_size*Y_size; k++){
+			  SetData(scenarioIndex, X_Voxels*Y_Voxels*i + k, DataIn[k]); //pDataIn[k];
+			}
+		}
+
+		pXML->UpLevel();
+	}
+}
+
+char* CVXC_Scenarios::loadScenario(int scenarioIndex, char* shape)
+{
+	return NULL;
+}
+
 
 
 ////////////////////////////////STRUCTURE////////////////////////////////
@@ -1615,7 +1687,7 @@ CVXC_Structure& CVXC_Structure::operator=(const CVXC_Structure& RefStruct)
 	Y_Voxels = RefStruct.Y_Voxels;
 	Z_Voxels = RefStruct.Z_Voxels;
 
-	if (RefStruct.DataInit){ 
+	if (RefStruct.DataInit){
 		IniData(RefStruct.GetArraySize());
 		for (int i=0; i<RefStruct.GetArraySize(); i++)
 			SetData(i, RefStruct.GetData(i));
@@ -1674,7 +1746,7 @@ bool CVXC_Structure::WriteXML(CXML_Rip* pXML, int Compression, std::string* RetM
 		for (int j=0; j<X_Voxels*Y_Voxels; j++){
 			RawData.push_back(GetData(i*X_Voxels*Y_Voxels + j));
 		} //convert to QByteArray to use qcompress
-		
+
 		if (Compress == "ASCII_READABLE"){ for (int k=0; k < X_Voxels*Y_Voxels; k++){ WriteData.resize(X_Voxels*Y_Voxels); WriteData[k] = RawData[k]+48;}}
 		else if (Compress == "ZLIB"){
 			#ifdef USE_ZLIB_COMPRESSION
@@ -1700,8 +1772,8 @@ bool CVXC_Structure::WriteXML(CXML_Rip* pXML, int Compression, std::string* RetM
 			#endif
 		}
 		else if (Compress == "RAW_DATA"){if (RetMessage) *RetMessage += "Raw data version of VXC is deprecated. Please select another type."; }
-		else {WriteData = ToBase64((unsigned char*)RawData.c_str(), RawData.length());} //Compress == BASE64 
-		
+		else {WriteData = ToBase64((unsigned char*)RawData.c_str(), RawData.length());} //Compress == BASE64
+
 
 		pXML->Element("Layer", WriteData, true);
 	}
@@ -1710,18 +1782,18 @@ bool CVXC_Structure::WriteXML(CXML_Rip* pXML, int Compression, std::string* RetM
 	return true;
 }
 
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) 
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
 {
     std::stringstream ss(s);
     std::string item;
-    while (std::getline(ss, item, delim)) 
+    while (std::getline(ss, item, delim))
     {
         elems.push_back(item);
     }
     return elems;
 }
 
-std::vector<std::string> split(const std::string &s, char delim) 
+std::vector<std::string> split(const std::string &s, char delim)
 {
     std::vector<std::string> elems;
     split(s, delim, elems);
@@ -1751,7 +1823,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			std::string DataIn;
 			std::string RawData;
 			pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 			//different compression types
 			if (Compression == "QT_ZLIB") //DEPRECATED
 			{
@@ -1781,7 +1853,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 					return false;
 				#endif
 			}
-			else if (Compression == "ASCII_READABLE") 
+			else if (Compression == "ASCII_READABLE")
 			{
 				DataIn.resize(RawData.size());
 				for (int i=0; i<(int)RawData.size(); i++)
@@ -1790,8 +1862,8 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 				}
 			}
 			else if (Compression == "RAW_DATA") //DEPRECATED!!!
-			{	
-				DataIn = RawData; 
+			{
+				DataIn = RawData;
 			}
 			else { //if Compression == BASE64
 				DataIn = FromBase64(RawData); //otherwise uncompressed
@@ -1830,7 +1902,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 	}
 
 	// // nac: load neural net weights
-	// if (pXML->FindElement("Weights")){ 
+	// if (pXML->FindElement("Weights")){
 	// 	// std::cout << "found weights!" << std::endl;
 	// 	InitSynpaseArray(pow(NumNuerons,2));
 	// 	for (int i=0; i<NumNuerons; i++)
@@ -1839,7 +1911,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 	// 		std::string RawData;
 	// 		// std::string thisValue;
 	// 		pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 	// 		std::vector<std::string> dataArray;
 	// 		dataArray = split(RawData,',',dataArray);
 	// 		// std::cout << "rawData, Layer " << i << ": " << RawData << std::endl;
@@ -1851,13 +1923,13 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 	// 		{
 	// 			// std::getline(iss,thisValue,",");
 	// 			// std::cout << thisValue << std::endl;
-	// 			// DataIn[k] = RawData[k]-48; 
+	// 			// DataIn[k] = RawData[k]-48;
 	// 			SetSynapseWeight(NumNuerons*i+k,atof(dataArray[k].c_str()));
 	// 		}
 
 	// 		// for(int j=0; j<NumNuerons; j++)
 	// 		// {
-	// 		// 	SetData(j, atof(DataIn[j]); 
+	// 		// 	SetData(j, atof(DataIn[j]);
 	// 		// }
 
 	// 	}
@@ -1876,7 +1948,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 	// }
 
 		// nac: load neural net weights
-	if (pXML->FindElement("PhaseOffset")){ 
+	if (pXML->FindElement("PhaseOffset")){
 		usingPhaseOffset = true;
 		int voxCounter = 0;
 
@@ -1886,7 +1958,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			std::string DataIn;
 			std::string RawData;
 			pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 			std::vector<std::string> dataArray;
 			dataArray = split(RawData,',',dataArray);
 			for (int k=0; k<X_Voxels*Y_Voxels; k++)
@@ -1909,7 +1981,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 
 
 	if (pXML->FindElement("InitialVoxelSize"))
-	{ 	
+	{
 		usingInitialVoxelSize = true;
 		int voxCounter = 0;
 
@@ -1919,7 +1991,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			std::string DataIn;
 			std::string RawData;
 			pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 			std::vector<std::string> dataArray;
 			dataArray = split(RawData,',',dataArray);
 			for (int k=0; k<X_Voxels*Y_Voxels; k++)
@@ -2046,7 +2118,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 
 	// FC: if stiffness is under developmental control, let's fetch the associated stiffness plasticity rate parameters
 	if (pXML->FindElement("StiffnessPlasticityRate"))
-	{ 
+	{
 		stiffnessPlasticity = true;
 
 		int voxCounter = 0;
@@ -2057,7 +2129,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			std::string DataIn;
 			std::string RawData;
 			pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 			std::vector<std::string> dataArray;
 			dataArray = split(RawData,',',dataArray);
 			for (int k=0; k<X_Voxels*Y_Voxels; k++)
@@ -2084,7 +2156,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 
 	// FC: if evodevo parameters are evolved...
 	if (pXML->FindElement("KP"))
-	{ 
+	{
 		evoDevoParameters = true;
 
 		int voxCounter = 0;
@@ -2096,7 +2168,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			std::string DataIn;
 			std::string RawData;
 			pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 			std::vector<std::string> dataArray;
 			dataArray = split(RawData,',',dataArray);
 			for (int k=0; k<X_Voxels*Y_Voxels; k++)
@@ -2118,7 +2190,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 	}
 
 	if (pXML->FindElement("KI"))
-	{ 
+	{
 		evoDevoParameters = true;
 
 		int voxCounter = 0;
@@ -2130,7 +2202,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			std::string DataIn;
 			std::string RawData;
 			pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 			std::vector<std::string> dataArray;
 			dataArray = split(RawData,',',dataArray);
 			for (int k=0; k<X_Voxels*Y_Voxels; k++)
@@ -2153,7 +2225,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 
 
 	if (pXML->FindElement("ANTIWINDUP"))
-	{ 
+	{
 		evoDevoParameters = true;
 
 		int voxCounter = 0;
@@ -2165,7 +2237,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			std::string DataIn;
 			std::string RawData;
 			pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 			std::vector<std::string> dataArray;
 			dataArray = split(RawData,',',dataArray);
 			for (int k=0; k<X_Voxels*Y_Voxels; k++)
@@ -2189,7 +2261,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 
 	// FC: let's see if we are also evolving the stiffness distribution. In this case we will ignore the stiffness associated with the material
 	if (pXML->FindElement("Stiffness"))
-	{ 
+	{
 		evolvingStiffness = true;
 
 		int voxCounter = 0;
@@ -2200,7 +2272,7 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			std::string DataIn;
 			std::string RawData;
 			pXML->FindLoadElement("Layer", &RawData, true, true);
-		
+
 			std::vector<std::string> dataArray;
 			dataArray = split(RawData,',',dataArray);
 			for (int k=0; k<X_Voxels*Y_Voxels; k++)
@@ -2333,7 +2405,7 @@ void CVXC_Structure::Resize(int xS, int yS, int zS) //resizes a structure, prese
 	//Populate the Temporary new array
 	for (int i=0; i<GetArraySize(); i++){ //go through the existing array
 		if (GetData(i) != 0){ //If there is a voxel present
-			GetXYZNom(&tX, &tY, &tZ, i); //sets the current XYZ indices 
+			GetXYZNom(&tX, &tY, &tZ, i); //sets the current XYZ indices
 			if (tX < LStruct.GetVXDim() && tY < LStruct.GetVYDim() && tZ < LStruct.GetVZDim()){ //if its within the new area... (X, Y, Z are totals- based from 1)
 				NewIndex = tX + LStruct.GetVXDim()*tY + LStruct.GetVXDim()*LStruct.GetVYDim()*tZ;
 				if (NewIndex <= LStruct.GetArraySize()) LStruct[NewIndex] = GetData(i);
@@ -2476,7 +2548,7 @@ void CVXC_Voxel::DrawVoxel2D(Vec3D<>* Center, vfloat Lat_Dim, Vec3D<>* Normal, b
 			break;
 		case VS_CYLINDER:
 			if (Normal->z > Normal->x && Normal->z > Normal->y){ //if viewing from above (ie draw a circle)
-				CGL_Utils::DrawCircle(*Center, Lat_Dim/2, *Normal, Squeeze, Fill, 1.0);	
+				CGL_Utils::DrawCircle(*Center, Lat_Dim/2, *Normal, Squeeze, Fill, 1.0);
 			}
 			else
 				CGL_Utils::DrawRectangle(*Center, Lat_Dim, *Normal, Squeeze, Fill, 1.0);
@@ -2534,5 +2606,5 @@ vfloat prsm(vfloat x, vfloat y, vfloat z, int k)
     /* "warm up" generator and generate k-th number */
     for (int i=0; i<k+9; i++) {taus_get(&state);}
 
-    return ((vfloat)taus_get(&state)/UINT_MAX);  
+    return ((vfloat)taus_get(&state)/UINT_MAX);
 }
