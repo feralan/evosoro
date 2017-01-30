@@ -333,8 +333,16 @@ def write_scenarios(env, individual, voxelyze_file):
 
     voxelyze_file.write("<NScenarios>" + str(len(env.scenarios)) + "</NScenarios>\n")
 
+    voxelyze_file.write("<ScenarioNames>\n")
+
     for name, scenario in env.scenarios.iteritems():
         voxelyze_file.write("<ScenarioName>" + name + "</ScenarioName>\n")
+
+    voxelyze_file.write("</ScenarioNames>\n")
+
+    voxelyze_file.write("<ScenarioShapes>\n")
+
+    for name, scenario in env.scenarios.iteritems():
         voxelyze_file.write("<ScenarioData>\n")
         for z in range(individual.genotype.orig_size_xyz[2]):
             voxelyze_file.write("<Layer><![CDATA[")
@@ -343,3 +351,5 @@ def write_scenarios(env, individual, voxelyze_file):
                     voxelyze_file.write(str(scenario[z][y][x]))
             voxelyze_file.write("]]></Layer>\n")
         voxelyze_file.write("</ScenarioData>\n")
+
+    voxelyze_file.write("</ScenarioShapes>\n")    
