@@ -4,3 +4,7 @@ progetto/voxelyze
 _voxcad/release/*
 _voxcad/voxelyzeMain/voxelyze
 _voxcad/Voxelyze/libvoxelyze.0.9.a
+
+_voxcad_mod/release/*
+_voxcad_mod/voxelyzeMain/voxelyze
+_voxcad_mod/Voxelyze/libvoxelyze.0.9.a
