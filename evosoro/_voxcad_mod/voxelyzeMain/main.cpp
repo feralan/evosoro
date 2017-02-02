@@ -22,20 +22,20 @@ int main(int argc, char *argv[])
 
 	// TODO: add --genVolumeInfo option?
 	//first, parse inputs. Use as: -f followed by the filename of the .vxa file that describes the simulation. Can also follow this with -p to cause console output to occur
-	if (argc < 3) 
+	if (argc < 3)
 	{ // Check the value of argc. If not enough parameters have been passed, inform user and exit.
 		std::cout << "\nInput file required. Quitting.\n";
 		return(0);	//return, indicating via code (0) that we did not complete the simulation
-	} 
-	else 
+	}
+	else
 	{ // if we got enough parameters...
-		for (int i = 1; i < argc; i++) 
-		{ 
-			if (strcmp(argv[i],"-f") == 0) 
+		for (int i = 1; i < argc; i++)
+		{
+			if (strcmp(argv[i],"-f") == 0)
 			{
 				InputFile = argv[i + 1];	// We know the next argument *should* be the filename:
-			} 
-			else if (strcmp(argv[i],"-p") == 0) 
+			}
+			else if (strcmp(argv[i],"-p") == 0)
 			{
 				print_scrn=true;	//decide if output to the console is desired
 			}
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 				computeShapeDescriptors = true;
 			}
 		}
-	} 
+	}
 
 	//setup main object
 	Simulator.pEnv = &Environment;	//connect Simulation to environment
@@ -56,12 +56,13 @@ int main(int argc, char *argv[])
 		if (print_scrn) std::cout << "\nProblem importing VXA file. Quitting\n";
 		return(0);	//return, indicating via code (0) that we did not complete the simulation
 		}
+	std::cout << "Trovati scenari: " << Environment.pObj->Scenarios.GetNScenarios() << '\n';
 	std::string ReturnMessage;
 	if (print_scrn) std::cout << "\nImporting Environment into simulator...\n";
 
 	Simulator.Import(&Environment, 0, &ReturnMessage);
 	if (print_scrn) std::cout << "Simulation import return message:\n" << ReturnMessage << "\n";
-	
+
 	Simulator.pEnv->UpdateCurTemp(Time);	//set the starting temperature (nac: pointer removed for debugging)
 
 
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
 	DeformableMesh.initializeDeformableMesh(&Simulator); // Initialize internal mesh and link it to the simulation
 
 	if(computeShapeDescriptors)
-	{		
+	{
 		hulVolumeStart = DeformableMesh.computeAndStoreQHullStart();
 		robotVolumeStart = DeformableMesh.computeAndStoreRobotVolumeStart();
 		sComplexityStart = DeformableMesh.computeInitialShapeComplexity();
@@ -78,7 +79,7 @@ int main(int argc, char *argv[])
 		if (print_scrn)
 		{
 			std::cout << "Robot mesh has " << DeformableMesh.getMeshVertNum() << " vertices and " << DeformableMesh.getMeshFacetsNum() << " facets" << std::endl
-					  << "Init robot volume: " << robotVolumeStart << std::endl 
+					  << "Init robot volume: " << robotVolumeStart << std::endl
 					  << "Init convex hull volume: " << hulVolumeStart << std::endl << std::endl
 					  << "Init shape complexity: " << sComplexityStart << std::endl;
 
@@ -93,7 +94,7 @@ int main(int argc, char *argv[])
 		{
 			std::cout << "Time: " << Time << std::endl;
 			std::cout << "CM: " << Simulator.GetCM().Length() << std::endl << std::endl;
-			
+
 			// std::cout << " \tVox 0 X: " << Vox0Pos.x << "mm" << "\tVox 0 Y: " << Vox0Pos.y << "mm" << "\tVox 0 Z: " << Vox0Pos.z << "mm\n";	//just display the position of the first voxel in the voxelarray
 			std::cout << "Vox[0]  Scale: " << Simulator.VoxArray[0].GetCurScale() << std::endl;
 			std::cout << "Vox[0]  TempAmp: " << Simulator.VoxArray[0].TempAmplitude << std::endl;
@@ -107,7 +108,7 @@ int main(int argc, char *argv[])
 		Simulator.TimeStep(&ReturnMessage);
 		Step += 1;	//increment the step counter
 		Time += Simulator.dt;	//update the sim tim after the step
-		Simulator.pEnv->UpdateCurTemp(Time);	//pass in the global time, and a pointer to the local object so its material temps can be modified (nac: pointer removed for debugging)	
+		Simulator.pEnv->UpdateCurTemp(Time);	//pass in the global time, and a pointer to the local object so its material temps can be modified (nac: pointer removed for debugging)
 	}
 
 	if(computeShapeDescriptors)
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
 
 		if (print_scrn)
 		{
-			std::cout << "Final robot volume: " << robotVolumeEnd << std::endl 
+			std::cout << "Final robot volume: " << robotVolumeEnd << std::endl
 					  << "Final convex hull volume: " << hulVolumeEnd << std::endl << std::endl
 					  << "Final shape complexity: " << sComplexityEnd << std::endl;
   			DeformableMesh.printAllMeshInfo();
