@@ -1671,9 +1671,34 @@ bool CVXC_Scenarios::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 	}
 }
 
-char* CVXC_Scenarios::loadScenario(int scenarioIndex, char* shape)
+void CVXC_Scenarios::loadScenario(int scenarioIndex, CVXC_Structure strucure)
 {
-	return NULL;
+	int size = X_Voxels * Y_Voxels * Z_Voxels;
+
+	if (StructureBackup == NULL) {
+		StructureBackup = new char[size];
+
+		for (int i = 0; i < size; i++) {
+			StructureBackup[i] = strucure.GetData(i);
+		}
+	}
+
+	char* myScenario = scenarios[scenarioIndex];
+
+	for (int i = 0; i < size; i++) {
+		if (strcmp((const char*) myScenario[i], (const char*) '0') == 0) {
+			strucure.SetData(i, myScenario[i]);
+		}
+	}
+}
+
+void CVXC_Scenarios::unloadScenario(CVXC_Structure strucure)
+{
+	int size = X_Voxels * Y_Voxels * Z_Voxels;
+
+	for (int i = 0; i < size; i++) {
+		strucure.SetData(i, StructureBackup[i]);
+	}
 }
 
 

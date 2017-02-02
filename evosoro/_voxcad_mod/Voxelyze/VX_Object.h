@@ -145,13 +145,17 @@ public:
 	inline char* GetData(int scenario, int Index) const { return scenarios[Index]; };
 	inline std::string GetName(int Index) const { return scenarioNames[Index]; };
 	bool ReadXML(CXML_Rip* pXML, std::string Version = "", std::string* RetMessage = NULL, int X_size=0, int Y_size=0, int Z_size=0);
-	char* loadScenario(int scenarioIndex, char* shape);
+	void loadScenario(int scenarioIndex, CVXC_Structure strucure);
+	void unloadScenario(CVXC_Structure strucure);
 	inline void SetData(int scenarioIndex, int Index, char Data){ scenarios[scenarioIndex][Index] = Data;}
 	inline char GetData(int scenarioIndex, int index){ return scenarios[scenarioIndex][index]; }
-
+	inline int GetVXDim(void) const {return X_Voxels;}; //get number of voxels in each dimension
+	inline int GetVYDim(void) const {return Y_Voxels;};
+	inline int GetVZDim(void) const {return Z_Voxels;};
 
 
 protected:
+	char *StructureBackup;
 	int nScenarios;
 	int X_Voxels;
 	int Y_Voxels;
