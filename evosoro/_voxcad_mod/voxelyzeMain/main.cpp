@@ -56,77 +56,104 @@ int main(int argc, char *argv[])
 		if (print_scrn) std::cout << "\nProblem importing VXA file. Quitting\n";
 		return(0);	//return, indicating via code (0) that we did not complete the simulation
 		}
-	std::cout << "Trovati scenari: " << Environment.pObj->Scenarios.GetNScenarios() << '\n';
+
 	std::string ReturnMessage;
 	if (print_scrn) std::cout << "\nImporting Environment into simulator...\n";
 
 	Simulator.Import(&Environment, 0, &ReturnMessage);
 	if (print_scrn) std::cout << "Simulation import return message:\n" << ReturnMessage << "\n";
 
-	Simulator.pEnv->UpdateCurTemp(Time);	//set the starting temperature (nac: pointer removed for debugging)
+	Environment.pObj->Scenarios.loadScenario(2, Environment.pObj->Structure);
+	Simulator.SaveVXAFile("Prova.vxa");
 
 
-	double hulVolumeStart, hulVolumeEnd, robotVolumeStart, robotVolumeEnd, sComplexityStart, sComplexityEnd;
-
-	DeformableMesh.initializeDeformableMesh(&Simulator); // Initialize internal mesh and link it to the simulation
-
-	if(computeShapeDescriptors)
+	for (int scenInd = 0; scenInd < Environment.pObj->Scenarios.GetNScenarios(); scenInd++)
 	{
-		hulVolumeStart = DeformableMesh.computeAndStoreQHullStart();
-		robotVolumeStart = DeformableMesh.computeAndStoreRobotVolumeStart();
-		sComplexityStart = DeformableMesh.computeInitialShapeComplexity();
+		std::cerr << "1" << '\n';
+		Simulator.ResetSimulation();
+		std::cout << "2" << '\n';
+		Environment.pObj->Scenarios.loadScenario(scenInd, Environment.pObj->Structure);
+		std::cout << "3" << '\n';
 
-		if (print_scrn)
+		Simulator.pEnv->UpdateCurTemp(Time);	//set the starting temperature (nac: pointer removed for debugging)
+
+
+		double hulVolumeStart, hulVolumeEnd, robotVolumeStart, robotVolumeEnd, sComplexityStart, sComplexityEnd;
+
+		DeformableMesh.initializeDeformableMesh(&Simulator); // Initialize internal mesh and link it to the simulation
+
+		if(computeShapeDescriptors)
 		{
-			std::cout << "Robot mesh has " << DeformableMesh.getMeshVertNum() << " vertices and " << DeformableMesh.getMeshFacetsNum() << " facets" << std::endl
-					  << "Init robot volume: " << robotVolumeStart << std::endl
-					  << "Init convex hull volume: " << hulVolumeStart << std::endl << std::endl
-					  << "Init shape complexity: " << sComplexityStart << std::endl;
+			hulVolumeStart = DeformableMesh.computeAndStoreQHullStart();
+			robotVolumeStart = DeformableMesh.computeAndStoreRobotVolumeStart();
+			sComplexityStart = DeformableMesh.computeInitialShapeComplexity();
 
-			DeformableMesh.printAllMeshInfo();
-		}
-	}
+			if (print_scrn)
+			{
+				std::cout << "Robot mesh has " << DeformableMesh.getMeshVertNum() << " vertices and " << DeformableMesh.getMeshFacetsNum() << " facets" << std::endl
+						  << "Init robot volume: " << robotVolumeStart << std::endl
+						  << "Init convex hull volume: " << hulVolumeStart << std::endl << std::endl
+						  << "Init shape complexity: " << sComplexityStart << std::endl;
 
-	while (not Simulator.StopConditionMet())
-	{
-		// do some reporting via the stdoutput if required:
-		if (Step%100 == 0.0 && print_scrn) //Only output every n time steps
-		{
-			std::cout << "Time: " << Time << std::endl;
-			std::cout << "CM: " << Simulator.GetCM().Length() << std::endl << std::endl;
-
-			// std::cout << " \tVox 0 X: " << Vox0Pos.x << "mm" << "\tVox 0 Y: " << Vox0Pos.y << "mm" << "\tVox 0 Z: " << Vox0Pos.z << "mm\n";	//just display the position of the first voxel in the voxelarray
-			std::cout << "Vox[0]  Scale: " << Simulator.VoxArray[0].GetCurScale() << std::endl;
-			std::cout << "Vox[0]  TempAmp: " << Simulator.VoxArray[0].TempAmplitude << std::endl;
-			std::cout << "Vox[0]  TempPer: " << Simulator.VoxArray[0].TempPeriod << std::endl;
-			std::cout << "Vox[0]  phaseOffset: " << Simulator.VoxArray[0].phaseOffset << std::endl;
-			// std::cout << "Vox[5]  Scale: " << Simulator.VoxArray[5].GetCurScale() << std::endl;
-			// std::cout << "Vox[10] Scale: " << Simulator.VoxArray[10].GetCurScale() << std::endl;
+				DeformableMesh.printAllMeshInfo();
+			}
 		}
 
-		//do the actual simulation step
-		Simulator.TimeStep(&ReturnMessage);
-		Step += 1;	//increment the step counter
-		Time += Simulator.dt;	//update the sim tim after the step
-		Simulator.pEnv->UpdateCurTemp(Time);	//pass in the global time, and a pointer to the local object so its material temps can be modified (nac: pointer removed for debugging)
-	}
-
-	if(computeShapeDescriptors)
-	{
-		hulVolumeEnd = DeformableMesh.computeAndStoreQHullEnd();
-		robotVolumeEnd = DeformableMesh.computeAndStoreRobotVolumeEnd();
-		sComplexityEnd = DeformableMesh.computeFinalShapeComplexity();
-
-		if (print_scrn)
+		while (not Simulator.StopConditionMet())
 		{
-			std::cout << "Final robot volume: " << robotVolumeEnd << std::endl
-					  << "Final convex hull volume: " << hulVolumeEnd << std::endl << std::endl
-					  << "Final shape complexity: " << sComplexityEnd << std::endl;
-  			DeformableMesh.printAllMeshInfo();
-  		}
-	}
+			// do some reporting via the stdoutput if required:
+			if (Step%100 == 0.0 && print_scrn) //Only output every n time steps
+			{
+				std::cout << "Time: " << Time << std::endl;
+				std::cout << "CM: " << Simulator.GetCM().Length() << std::endl << std::endl;
 
-	if (print_scrn) std::cout << "Ended at: " << Time << std::endl;
+				// std::cout << " \tVox 0 X: " << Vox0Pos.x << "mm" << "\tVox 0 Y: " << Vox0Pos.y << "mm" << "\tVox 0 Z: " << Vox0Pos.z << "mm\n";	//just display the position of the first voxel in the voxelarray
+				std::cout << "Vox[0]  Scale: " << Simulator.VoxArray[0].GetCurScale() << std::endl;
+				std::cout << "Vox[0]  TempAmp: " << Simulator.VoxArray[0].TempAmplitude << std::endl;
+				std::cout << "Vox[0]  TempPer: " << Simulator.VoxArray[0].TempPeriod << std::endl;
+				std::cout << "Vox[0]  phaseOffset: " << Simulator.VoxArray[0].phaseOffset << std::endl;
+				// std::cout << "Vox[5]  Scale: " << Simulator.VoxArray[5].GetCurScale() << std::endl;
+				// std::cout << "Vox[10] Scale: " << Simulator.VoxArray[10].GetCurScale() << std::endl;
+			}
+
+			//do the actual simulation step
+			Simulator.TimeStep(&ReturnMessage);
+			Step += 1;	//increment the step counter
+			Time += Simulator.dt;	//update the sim tim after the step
+			Simulator.pEnv->UpdateCurTemp(Time);	//pass in the global time, and a pointer to the local object so its material temps can be modified (nac: pointer removed for debugging)
+		}
+
+		if(computeShapeDescriptors)
+		{
+			hulVolumeEnd = DeformableMesh.computeAndStoreQHullEnd();
+			robotVolumeEnd = DeformableMesh.computeAndStoreRobotVolumeEnd();
+			sComplexityEnd = DeformableMesh.computeFinalShapeComplexity();
+
+			if (print_scrn)
+			{
+				std::cout << "Final robot volume: " << robotVolumeEnd << std::endl
+						  << "Final convex hull volume: " << hulVolumeEnd << std::endl << std::endl
+						  << "Final shape complexity: " << sComplexityEnd << std::endl;
+	  			DeformableMesh.printAllMeshInfo();
+	  		}
+		}
+
+		// std::cout << "Striga1" << '\n';
+		// std::stringstream ss;
+		// ss << "test_scenario_" << scenInd;
+		// std::string s = ss.str();
+		// std::cout << "Striga2" << '\n';
+		//
+		//
+		// Simulator.SaveVXAFile("Prova.VXA");
+		// std::cout << "Striga3" << '\n';
+
+
+		std::cout << "4" << '\n';
+		Environment.pObj->Scenarios.unloadScenario(Environment.pObj->Structure);
+		std::cout << "5" << '\n';
+		if (print_scrn) std::cout << "Ended at: " << Time << std::endl;
+	}
 
 	Simulator.SaveResultFile(Simulator.FitnessFileName);
 

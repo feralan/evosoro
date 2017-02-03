@@ -1686,8 +1686,11 @@ void CVXC_Scenarios::loadScenario(int scenarioIndex, CVXC_Structure strucure)
 	char* myScenario = scenarios[scenarioIndex];
 
 	for (int i = 0; i < size; i++) {
-		if (strcmp((const char*) myScenario[i], (const char*) '0') == 0) {
+		if ( myScenario[i] != '0'-48 ) {
+			std::cout << "prima Leggo " << strucure.GetData(i)+0 << '\n';
+			std::cout << "quindi scrivo " << myScenario[i]+0 << '\n';
 			strucure.SetData(i, myScenario[i]);
+			std::cout << "ora Leggo " << strucure.GetData(i)+0 << '\n';
 		}
 	}
 }
