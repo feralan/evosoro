@@ -55,25 +55,20 @@ int main(int argc, char *argv[])
 	if (!Simulator.LoadVXAFile(InputFile)){
 		if (print_scrn) std::cout << "\nProblem importing VXA file. Quitting\n";
 		return(0);	//return, indicating via code (0) that we did not complete the simulation
-		}
+	}
 
 	std::string ReturnMessage;
-	if (print_scrn) std::cout << "\nImporting Environment into simulator...\n";
-
-	Simulator.Import(&Environment, 0, &ReturnMessage);
-	if (print_scrn) std::cout << "Simulation import return message:\n" << ReturnMessage << "\n";
-
-	Environment.pObj->Scenarios.loadScenario(2, Environment.pObj->Structure);
-	Simulator.SaveVXAFile("Prova.vxa");
-
 
 	for (int scenInd = 0; scenInd < Environment.pObj->Scenarios.GetNScenarios(); scenInd++)
 	{
-		std::cerr << "1" << '\n';
-		Simulator.ResetSimulation();
-		std::cout << "2" << '\n';
-		Environment.pObj->Scenarios.loadScenario(scenInd, Environment.pObj->Structure);
-		std::cout << "3" << '\n';
+		if (print_scrn) std::cout << "\nImporting Environment into simulator...\n";
+
+		Simulator.Import(&Environment, 0, &ReturnMessage);
+		if (print_scrn) std::cout << "Simulation import return message:\n" << ReturnMessage << "\n";
+
+		Environment.pObj->Scenarios.unloadScenario(&Environment.pObj->Structure);
+		Environment.pObj->Scenarios.loadScenario(scenInd, &Environment.pObj->Structure);
+		// Simulator.SaveVXAFile("Prova.vxa");
 
 		Simulator.pEnv->UpdateCurTemp(Time);	//set the starting temperature (nac: pointer removed for debugging)
 
@@ -138,22 +133,11 @@ int main(int argc, char *argv[])
 	  		}
 		}
 
-		// std::cout << "Striga1" << '\n';
-		// std::stringstream ss;
-		// ss << "test_scenario_" << scenInd;
-		// std::string s = ss.str();
-		// std::cout << "Striga2" << '\n';
-		//
-		//
-		// Simulator.SaveVXAFile("Prova.VXA");
-		// std::cout << "Striga3" << '\n';
-
-
-		std::cout << "4" << '\n';
-		Environment.pObj->Scenarios.unloadScenario(Environment.pObj->Structure);
-		std::cout << "5" << '\n';
 		if (print_scrn) std::cout << "Ended at: " << Time << std::endl;
+		Simulator.EvaluateCurrentClass(structure);
 	}
+	std::cout << "Dimensione:" << Simulator.classValues.size() << '\n';
+	std::cout << Simulator.classValues[0] << " -- " << Simulator.classValues[1] << " -- " << Simulator.classValues[2] << " -- " << '\n';
 
 	Simulator.SaveResultFile(Simulator.FitnessFileName);
 

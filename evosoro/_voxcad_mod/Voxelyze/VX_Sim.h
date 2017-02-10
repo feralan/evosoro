@@ -31,7 +31,7 @@ See <http://www.opensource.org/licenses/lgpl-3.0.html> for license details.
 //#ifdef QT_GUI_LIB
 //#include <qgl.h>
 //#else
-//#include "OpenGLInclude.h" //If not using QT's openGL system, make a header file "OpenGLInclude.h" that includes openGL library functions 
+//#include "OpenGLInclude.h" //If not using QT's openGL system, make a header file "OpenGLInclude.h" that includes openGL library functions
 //#endif
 //#endif
 
@@ -51,7 +51,7 @@ struct SimState { //Information about current simulation state:
 	std::vector< Vec3D<> > CMTrace;
 	std::vector< vfloat > CMTraceTime;
 	Vec3D<> TotalObjDisp; //a vector total of the magnitude of displacements
-	vfloat NormObjDisp; //reduced to a scalar (magnitude) 
+	vfloat NormObjDisp; //reduced to a scalar (magnitude)
 	vfloat MaxVoxDisp, MaxVoxVel, MaxVoxKinE, MaxBondStrain, MaxBondStress, MaxBondStrainE, MaxPressure, MinPressure;
 	vfloat TotalObjKineticE, TotalObjStrainE;
 };
@@ -65,7 +65,7 @@ class CVX_Sim
 public:
 	CVX_Sim(void); //!< Constructor
 	~CVX_Sim(void); //!< Destructor
-	CVX_Sim& operator=(const CVX_Sim& rSim); //!< Overload "=" 
+	CVX_Sim& operator=(const CVX_Sim& rSim); //!< Overload "="
 
 	//I/O function for save/loading
 	void SaveVXAFile(std::string filename);
@@ -80,11 +80,14 @@ public:
 	virtual void WriteAdditionalSimXML(CXML_Rip* pXML) {};
 	virtual bool ReadAdditionalSimXML(CXML_Rip* pXML, std::string* RetMessage = NULL) {return true;};
 
+	// Classification Results
+	std::vector<int> classValues;
+	void EvaluateCurrentClass(CVXC_Structure str);
 
 	//input information
 	CVX_Environment* pEnv; //!< Pointer to the physical environment information. This variable is set on import() and should not be manually changed.
 	CVX_Object LocalVXC; //!< Local copy of the voxel object. This copy is stored to ensure it never changes throughout the simulation. This variable is set on import() and should not be manually changed.
-	
+
 	//Simulation information
 	std::vector<CVXS_Voxel> VoxArray; //!< The main array of voxels.
 	bool UpdateAllVoxPointers(); //updates all pointers into the VoxArray (call if reallocated!)
@@ -104,8 +107,8 @@ public:
 
 	//Simulation Management
 	bool Import(CVX_Environment* pEnvIn = NULL, CMesh* pSurfMeshIn = NULL, std::string* RetMessage = NULL); //!< Imports a physical environment into the simulator.
-	int CreatePermBond(int SIndexNegIn, int SIndexPosIn); //!< Creates a new permanent bond between two voxels. 
-	int CreateColBond(int SIndex1In, int SIndex2In); //!< Creates a new collision bond between two voxels. 
+	int CreatePermBond(int SIndexNegIn, int SIndexPosIn); //!< Creates a new permanent bond between two voxels.
+	int CreateColBond(int SIndex1In, int SIndex2In); //!< Creates a new collision bond between two voxels.
 //	bool UpdateBond(int BondIndex, int NewSIndex1In, int NewSIndex2In, bool LinkBond = true);
 
 	void DeleteCollisionBonds(void); //!< Deletes all collision bonds.
@@ -141,7 +144,7 @@ public:
 	//Self collision:
 
 	std::vector<int> SurfVoxels; //A list of voxels that are on the surface (IE eligible for contact bonds...) (containts SIndex!)
-	int NumSurfVoxels(void) {return (int)SurfVoxels.size();}; //how 
+	int NumSurfVoxels(void) {return (int)SurfVoxels.size();}; //how
 	void CalcL1Bonds(vfloat Dist); //creates contact bonds for all voxels within specified distance
 	vfloat MaxDispSinceLastBondUpdate;
 
@@ -150,7 +153,7 @@ public:
 	void SetBondDampZ(vfloat BondDampZIn) {BondDampingZ = BondDampZIn;} //!< Sets the damping ratio for connected voxels. When this is non-zero, each voxel is damped (based on its mass and stiffness) according to its relative velocity to the other voxel in each bond. Range is [0.0 to 1.0]. Values greater than 1.0 may cause numerical instability.
 	void SetCollisionDampZ(vfloat ColDampZIn) {ColDampingZ = ColDampZIn;} //!< Sets the damping ratio for voxels in colliding state. When this is non-zero, each voxel is damped (based on its mass and stiffness) according to the penetration velocity. Range is [0.0 to 1.0]. Values greater than 1.0 may cause numerical instability.
 	void SetSlowDampZ(vfloat SlowDampIn) {SlowDampingZ = SlowDampIn; } //!< Sets the damping ratio that slows downs voxels. When this is non-zero, each voxel is damped (based on its mass and stiffness) to ground. Range is [0.0 to 1.0]. Values greater than 1.0 may cause numerical instability.
-	
+
 	vfloat GetBondDampZ(void) {return BondDampingZ;} //!< Returns the current bond damping.
 	vfloat GetCollisionDampZ(void) {return ColDampingZ;} //!< Returns the current collision damping.
 	vfloat GetSlowDampZ(void) {return SlowDampingZ;} //!< Returns the current voxel slowing damping.
@@ -176,9 +179,9 @@ public:
 	//Stop conditions
 //	void SetStopCondition(StopCondition StopConditionTypeIn = SC_NONE, vfloat StopConditionValueIn = 0.0) {SetStopConditionType(StopConditionTypeIn); SetStopConditionValue(StopConditionValueIn);}
 	void SetStopConditionType(StopCondition StopConditionTypeIn = SC_NONE) {StopConditionType = StopConditionTypeIn;}
-	void SetStopConditionValue(vfloat StopConditionValueIn = 0.0) {StopConditionValue = StopConditionValueIn;} 
+	void SetStopConditionValue(vfloat StopConditionValueIn = 0.0) {StopConditionValue = StopConditionValueIn;}
 	void SetInitCmTime(vfloat _InitCmTime= 0.0) {InitCmTime = _InitCmTime;}
-	StopCondition GetStopConditionType(void){return StopConditionType;}	
+	StopCondition GetStopConditionType(void){return StopConditionType;}
 	vfloat GetStopConditionValue(void){return StopConditionValue;}
 	vfloat GetInitCmTime(void){return InitCmTime;}
 	bool StopConditionMet(void); //have we met the stop condition yet?
@@ -220,7 +223,7 @@ public:
 	// // std::map<std::pair<float,float>,int> floorIsLava;
 	// std::map< float, float > floorIsLava;
 
-	
+
 
 	float COMZ;
 	int numSamples;
@@ -228,7 +231,7 @@ public:
 
 	double getMaxTempFactChange(){ return MAX_TEMP_FACT_VARIATION_STEP; }
 	double getMinTempFact(){ return MIN_TEMP_FACT; }
-	
+
 	CVX_MeshUtil DeformableVoxMesh; // a mesh, updated when using voxelyze with no GUI just for computing robot's volume
 	void setInternalMesh(CVX_MeshUtil* pMeshIn){ internalMesh = pMeshIn; }
 
@@ -249,11 +252,11 @@ public:
 
 
 	inline void SetMaxKP(double value){ MaxKP = value; }
-	inline double GetMaxKP(void){ return MaxKP; }	
+	inline double GetMaxKP(void){ return MaxKP; }
 	inline void SetMaxKI(double value){ MaxKI = value; }
-	inline double GetMaxKI(void){ return MaxKI; }	
+	inline double GetMaxKI(void){ return MaxKI; }
 	inline void SetMaxANTIWINDUP(double value){ MaxANTIWINDUP = value; }
-	inline double GetMaxANTIWINDUP(void){ return MaxANTIWINDUP; }	
+	inline double GetMaxANTIWINDUP(void){ return MaxANTIWINDUP; }
 
 
 	inline double getMaxStiffnessChange(){ return MAX_STIFFNESS_VARIATION_STEP; }
@@ -263,11 +266,11 @@ public:
 	Vec3D<double> getPointingVector(){ return pointingVector; }
 	Vec3D<double> getInitialPointingVector(){ return initialPointingVector; }
 	Vec3D<double> getBaseVector(){ return baseVector; }
-	Vec3D<double> getTargetVector(){ return targetPosition-tipPosition; }	
+	Vec3D<double> getTargetVector(){ return targetPosition-tipPosition; }
 	Vec3D<double> getTipPosition(){ return VoxArray[tipVoxel].GetCurPos(); }
 	double getPointingAngle(){return pointingAngle;}
 	double getPointingError(){return pointingError;}
-	double getAvgPointingError(){ double acc = 0.0; for(int i = 0; i < pointingErrorHistory.size(); i++){ acc += pointingErrorHistory[i]; } return pointingErrorHistory.size() > 0 ? acc/((double)pointingErrorHistory.size()) : -1; }	
+	double getAvgPointingError(){ double acc = 0.0; for(int i = 0; i < pointingErrorHistory.size(); i++){ acc += pointingErrorHistory[i]; } return pointingErrorHistory.size() > 0 ? acc/((double)pointingErrorHistory.size()) : -1; }
 	double computePointingError(int step);
 
 	double KP, KI, ANTIWINDUP, MOTION_FLOOR_THR;
@@ -278,7 +281,7 @@ protected:
 	double errorThreshold;
 	double thresholdTime;
 	double lastTimeErrorThresExceeded;
-	
+
 	int tipVoxel;
 	int baseVoxel;
 	Vec3D<double> tipPosition;
@@ -296,13 +299,13 @@ protected:
 	std::string QhullTmpFile; //!< Holds the filename for input qhull files
 	std::string CurvaturesTmpFile; //!< Holds the filename for curvatures values computed on the mesh to measure shape complexity
 
-	double MAX_TEMP_FACT_VARIATION_STEP; 
+	double MAX_TEMP_FACT_VARIATION_STEP;
 	double MAX_STIFFNESS_VARIATION_STEP;
-	
+
 	double MIN_TEMP_FACT;
 
 	double MinElasticMod; // Used both when evolving stiffness and adapting it during ontogenetic time
-	double MaxElasticMod;	
+	double MaxElasticMod;
 
 	double MaxKP;
 	double MaxKI;
@@ -321,8 +324,8 @@ protected:
 
 	void EnableEquilibriumMode(bool Enabled);
 
-	void UpdateNeuralNet(void);	
-	
+	void UpdateNeuralNet(void);
+
 	int numOutputs;
 	int numSensors;
 	int numHiddenPerLayer;

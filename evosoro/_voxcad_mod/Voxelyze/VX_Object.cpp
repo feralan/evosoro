@@ -1616,6 +1616,7 @@ void CVXC_Scenarios::init(int x_s, int y_s, int z_s)
 	X_Voxels = x_s;
 	Y_Voxels = y_s;
 	Z_Voxels = z_s;
+	StructureBackup = NULL;
 
 	scenarioNames = std::vector<std::string>(nScenarios);
 	scenarios = std::vector<char*>(nScenarios);
@@ -1663,7 +1664,7 @@ bool CVXC_Scenarios::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 			}
 
 			for(int k=0; k<X_size*Y_size; k++){
-			  SetData(scenarioIndex, X_Voxels*Y_Voxels*i + k, DataIn[k]); //pDataIn[k];
+			  SetData(scenarioIndex, X_Voxels*Y_Voxels*i + k, DataIn[k]);
 			}
 		}
 
@@ -1671,15 +1672,16 @@ bool CVXC_Scenarios::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 	}
 }
 
-void CVXC_Scenarios::loadScenario(int scenarioIndex, CVXC_Structure strucure)
+void CVXC_Scenarios::loadScenario(int scenarioIndex, CVXC_Structure* structure)
 {
+	std::cout << "loadScenario" << '\n';
 	int size = X_Voxels * Y_Voxels * Z_Voxels;
 
 	if (StructureBackup == NULL) {
 		StructureBackup = new char[size];
 
 		for (int i = 0; i < size; i++) {
-			StructureBackup[i] = strucure.GetData(i);
+			StructureBackup[i] = structure->GetData(i);
 		}
 	}
 
@@ -1687,20 +1689,21 @@ void CVXC_Scenarios::loadScenario(int scenarioIndex, CVXC_Structure strucure)
 
 	for (int i = 0; i < size; i++) {
 		if ( myScenario[i] != '0'-48 ) {
-			std::cout << "prima Leggo " << strucure.GetData(i)+0 << '\n';
-			std::cout << "quindi scrivo " << myScenario[i]+0 << '\n';
-			strucure.SetData(i, myScenario[i]);
-			std::cout << "ora Leggo " << strucure.GetData(i)+0 << '\n';
+			structure->SetData(i, myScenario[i]);
 		}
 	}
 }
 
-void CVXC_Scenarios::unloadScenario(CVXC_Structure strucure)
+void CVXC_Scenarios::unloadScenario(CVXC_Structure* structure)
 {
 	int size = X_Voxels * Y_Voxels * Z_Voxels;
 
+	if (StructureBackup == NULL) {
+		return;
+	}
+
 	for (int i = 0; i < size; i++) {
-		strucure.SetData(i, StructureBackup[i]);
+		structure->SetData(i, StructureBackup[i]);
 	}
 }
 
@@ -1739,6 +1742,7 @@ void CVXC_Structure::IniData(int Size)
 	DeleteData();
 	if (Size > 0){
 		pData = new char[Size];
+		pClassWeights = new double[Size];
 		m_SizeOfArray = Size;
 		DataInit = true;
 	}
@@ -1974,6 +1978,32 @@ bool CVXC_Structure::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 	// 	// }
 
 	// }
+
+	if (pXML->FindElement("ClassWeight")){
+		int voxCounter = 0;
+
+		InitStiffnessArray(X_Voxels*Y_Voxels*Z_Voxels);
+		for (int i=0; i<Z_Voxels; i++)
+		{
+			std::string DataIn;
+			std::string RawData;
+			pXML->FindLoadElement("Layer", &RawData, true, true);
+
+			std::vector<std::string> dataArray;
+			dataArray = split(RawData,',',dataArray);
+			for (int k=0; k<X_Voxels*Y_Voxels; k++)
+			{
+				if (pData[X_Voxels*Y_Voxels*i+k] > 0)
+				{
+					SetClassWeight(voxCounter,atof(dataArray[k].c_str()));
+					voxCounter++;
+				}
+			}
+		}
+		pXML->UpLevel(); //Layer
+		pXML->UpLevel(); //Weights
+	}
+
 
 		// nac: load neural net weights
 	if (pXML->FindElement("PhaseOffset")){

@@ -145,8 +145,8 @@ public:
 	inline char* GetData(int scenario, int Index) const { return scenarios[Index]; };
 	inline std::string GetName(int Index) const { return scenarioNames[Index]; };
 	bool ReadXML(CXML_Rip* pXML, std::string Version = "", std::string* RetMessage = NULL, int X_size=0, int Y_size=0, int Z_size=0);
-	void loadScenario(int scenarioIndex, CVXC_Structure strucure);
-	void unloadScenario(CVXC_Structure strucure);
+	void loadScenario(int scenarioIndex, CVXC_Structure* strucure);
+	void unloadScenario(CVXC_Structure* strucure);
 	inline void SetData(int scenarioIndex, int Index, char Data){ scenarios[scenarioIndex][Index] = Data;}
 	inline char GetData(int scenarioIndex, int index){ return scenarios[scenarioIndex][index]; }
 	inline int GetVXDim(void) const {return X_Voxels;}; //get number of voxels in each dimension
@@ -180,6 +180,10 @@ public:
 	static inline bool is_base64(unsigned char c) {return (isalnum(c) || (c == '+') || (c == '/'));}
 	std::string ToBase64(unsigned char const* , unsigned int len);
 	std::string FromBase64(std::string const& s);
+
+	//Classification
+	inline double GetClassWeight(int Index) const {if (DataInit) return pClassWeights[Index]; else return (char&)defaultReturn;}
+	inline void SetClassWeight(int Index, double Data){if (DataInit) pClassWeights[Index] = Data;}
 
 	//Get information about the structure:
 	inline char& GetData(int Index) const {if (DataInit) return pData[Index]; else return (char&)defaultReturn;} //Gets the material index here (this should be the only place we access pData)
@@ -271,6 +275,7 @@ protected:
 	std::string Compression;
 	char* pData; //the main voxel array. This is an array of chars; the entries correspond with the material IDs, and the position in the array corresponds with the position in the 3D structure, where the array is ordered: starting at (x0,x0,z0), proceeding to (xn,y0,z0), next to (xn,yn,z0), and on to (xn,yn,zn)
 
+	double* pClassWeights;
 	// std::vector< std::vector<double> > pSynapseWeigths;
 	// double* pSynapseWeigths;
 	// int NumNuerons;
