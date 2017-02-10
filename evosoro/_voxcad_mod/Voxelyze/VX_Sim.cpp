@@ -149,16 +149,13 @@ CVX_Sim& CVX_Sim::operator=(const CVX_Sim& rSim) //overload "="
 
 void CVX_Sim::EvaluateCurrentClass(CVXC_Structure str)
 {
-	std::cout << "1-" << '\n';
 	double value;
 
 	for (int i = 0; i < NumVox(); i++) {
 		value += VoxArray[i].GetPressure() * str.GetClassWeight(i);
 	}
-	std::cout << "2-" << '\n';
 
 	classValues.push_back(value);
-	std::cout << "3-" << '\n';
 }
 
 void CVX_Sim::SaveVXAFile(std::string filename)

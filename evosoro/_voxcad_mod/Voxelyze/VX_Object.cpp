@@ -1674,7 +1674,6 @@ bool CVXC_Scenarios::ReadXML(CXML_Rip* pXML, std::string Version, std::string* R
 
 void CVXC_Scenarios::loadScenario(int scenarioIndex, CVXC_Structure* structure)
 {
-	std::cout << "loadScenario" << '\n';
 	int size = X_Voxels * Y_Voxels * Z_Voxels;
 
 	if (StructureBackup == NULL) {
