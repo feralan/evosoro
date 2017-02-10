@@ -99,8 +99,7 @@ class MyGenotype(Genotype):
         # but this can be changed.
         self.add_network(CPPN(output_node_names=["weight"]))
 
-        # Let's map this CPPN output to a VXA tag named <PhaseOffset>
-        self.to_phenotype_mapping.add_map(name="weight", tag="<Weight>",
+        self.to_phenotype_mapping.add_map(name="weight", tag="<ClassWeight>",
                                           func=np.abs)
 
 # Define a custom phenotype, inheriting from the Phenotype class
