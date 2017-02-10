@@ -32,10 +32,8 @@ void CVX_SimGA::SaveResultFile(std::string filename)
 
 void CVX_SimGA::WriteResultFile(CXML_Rip* pXML)
 {
-
-
-	float normFinalDist; // , normRegimeDist;
-	normFinalDist = pow(pow(SS.CurCM.x-IniCM.x,2)+pow(SS.CurCM.y-IniCM.y,2),0.5)/LocalVXC.GetLatticeDim();
+	// float normFinalDist; // , normRegimeDist;
+	// normFinalDist = pow(pow(SS.CurCM.x-IniCM.x,2)+pow(SS.CurCM.y-IniCM.y,2),0.5)/LocalVXC.GetLatticeDim();
 
 //	if(pEnv->pObj->GetUsingFinalVoxelSize())
 //	{
@@ -56,14 +54,20 @@ void CVX_SimGA::WriteResultFile(CXML_Rip* pXML)
 //
 //	pXML->UpLevel();
 //	pXML->UpLevel();
-
+	float number = classValues.size();
 
 	pXML->DownLevel("Voxelyze_Sim_Result");
 
 		pXML->SetElAttribute("Version", "1.0");
 		pXML->DownLevel("Fitness");
-			pXML->Element("NormFinalDist", normFinalDist);
-//			pXML->Element("NormRegimeDist", normRegimeDist);
+			pXML->Element("NClassValues", number);
+
+			pXML->DownLevel("ClassValues");
+				for (int i = 0; i < classValues.size(); i++) {
+					pXML->Element("ClassValue", classValues[i]);
+				}
+			pXML->UpLevel();
+
 		pXML->UpLevel();
 
 		if (pEnv->getTimeBetweenTraces() > 0)
@@ -105,8 +109,8 @@ bool CVX_SimGA::ReadAdditionalSimXML(CXML_Rip* pXML, std::string* RetMessage)
 		if (pXML->FindLoadElement("FitnessType", &TmpInt)) FitnessType=(FitnessTypes)TmpInt; else Fitness = 0;
 		if (!pXML->FindLoadElement("TrackVoxel", &TrackVoxel)) TrackVoxel = 0;
 		if (!pXML->FindLoadElement("FitnessFileName", &FitnessFileName)) FitnessFileName = "";
-		if (!pXML->FindLoadElement("QhullTmpFile", &QhullTmpFile)) QhullTmpFile = "";		
-		if (!pXML->FindLoadElement("CurvaturesTmpFile", &CurvaturesTmpFile)) CurvaturesTmpFile = "";		
+		if (!pXML->FindLoadElement("QhullTmpFile", &QhullTmpFile)) QhullTmpFile = "";
+		if (!pXML->FindLoadElement("CurvaturesTmpFile", &CurvaturesTmpFile)) CurvaturesTmpFile = "";
 		if (!pXML->FindLoadElement("WriteFitnessFile", &WriteFitnessFile)) WriteFitnessFile = true;
 		pXML->UpLevel();
 	}

@@ -136,8 +136,6 @@ int main(int argc, char *argv[])
 		if (print_scrn) std::cout << "Ended at: " << Time << std::endl;
 		Simulator.EvaluateCurrentClass(structure);
 	}
-	std::cout << "Dimensione:" << Simulator.classValues.size() << '\n';
-	std::cout << Simulator.classValues[0] << " -- " << Simulator.classValues[1] << " -- " << Simulator.classValues[2] << " -- " << '\n';
 
 	Simulator.SaveResultFile(Simulator.FitnessFileName);
 
