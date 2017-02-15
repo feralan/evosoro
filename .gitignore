@@ -83,3 +83,11 @@ MANIFEST
 *.o
 *.fuse_hidden*
 *~
+
+evosoro/_voxcad_mod/Makefile
+
+*.a
+
+evosoro/_voxcad_mod/release/VoxCad
+
+evosoro/_voxcad_mod/voxelyzeMain/voxelyze
