@@ -99,7 +99,7 @@ class ObjectiveDict(dict):
     #     raise SyntaxError
     # TODO: want to restrict input but this prevents deep copying: maybe instead just make object with embedded dict
 
-    def add_objective(self, name, maximize, tag, node_func=None, output_node_name=None):
+    def add_objective(self, name, maximize, tag, node_func=None, output_node_name=None, isArray=False, evalFun=None):
         """Add an optimization objective to the dictionary.
 
         Objectives must be added in order of importance, however fitness is fixed to be the most important.
@@ -135,6 +135,8 @@ class ObjectiveDict(dict):
                 self[rank+1] = self[rank]
 
         super(ObjectiveDict, self).__setitem__(curr_rank, {"name": name,
+                                                           "isArray": isArray,
+                                                           "evalFun": evalFun,
                                                            "maximize": maximize,
                                                            "tag": xml_format(tag) if tag is not None else None,
                                                            "worst_value": -10e6 if maximize else 10e6,

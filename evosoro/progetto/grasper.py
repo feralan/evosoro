@@ -52,7 +52,7 @@ from evosoro.tools.utils import count_occurrences, make_material_tree
 from evosoro.tools.checkpointing import continue_from_checkpoint
 
 
-VOXELYZE_VERSION = '_voxcad'
+VOXELYZE_VERSION = '_voxcad_mod'
 # sub.call("rm ./voxelyze", shell=True)
 sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  # Making sure to have the most up-to-date version of the Voxelyze physics engine
 # sub.call("chmod 755 ./voxelyze", shell=True)
@@ -111,17 +111,25 @@ class MyPhenotype(Phenotype):
 # Setting up the simulation object
 my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
 
-scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
+# scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
+scenarios = {'pyramid_5' : pyramid_5, 'cube_3' : cube_3}
 # Setting up the environment object
-my_env = Env(sticky_floor=0, time_between_traces=0, fixed_shape=base_mat, scenarios=scenarios)
+my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat, scenarios=scenarios)
 
 # Now specifying the objectives for the optimization.
 # Creating an objectives dictionary
 my_objective_dict = ObjectiveDict()
 
+
+def evalClassPerf(classValues):
+    d = np.diff(classValues)
+    d = np.abs(d)
+    d = np.sum(d)
+    return d
+
 # Adding an objective named "fitness", which we want to maximize. This information is returned by Voxelyze
 # in a fitness .xml file, with a tag named "NormFinalDist"
-my_objective_dict.add_objective(name="fitness", maximize=True, tag="<NormFinalDist>")
+my_objective_dict.add_objective(name="fitness", maximize=True, tag="<ClassValue>", isArray=True, evalFun=evalClassPerf)
 
 # Initializing a population of SoftBots
 my_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)

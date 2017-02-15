@@ -27,10 +27,20 @@ def read_voxlyze_results(population, print_log, filename="softbotsOutput.xml"):
     for rank, details in population.objective_dict.items():
         this_file = open(filename)  # TODO: is there a way to just go back to the first line without reopening the file?
         tag = details["tag"]
+        isArray = details["isArray"]
+        evalFun = details["evalFun"]
+
         if tag is not None:
-            for line in this_file:
-                if tag in line:
-                    results[rank] = abs(float(line[line.find(tag) + len(tag):line.find("</" + tag[1:])]))
+            if not isArray:
+                for line in this_file:
+                    if tag in line:
+                        results[rank] = abs(float(line[line.find(tag) + len(tag):line.find("</" + tag[1:])]))
+            else:
+                res = []
+                for line in this_file:
+                    if tag in line:
+                        res.extend([abs(float(line[line.find(tag) + len(tag):line.find("</" + tag[1:])]))])
+                results[rank] = evalFun(res)
 
     return results
 
@@ -120,12 +130,117 @@ def write_voxelyze_file(sim, env, individual, run_directory, run_name):
         voxelyze_file.write(tag + str(getattr(env, name)) + "</" + tag[1:] + "\n")
 
     voxelyze_file.write(
-        "<Fixed_Regions>\n\
-        <NumFixed>0</NumFixed>\n\
-        </Fixed_Regions>\n\
-        <Forced_Regions>\n\
-        <NumForced>0</NumForced>\n\
-        </Forced_Regions>\n\
+        "<Boundary_Conditions>\n\
+          <NumBCs>4</NumBCs>\n\
+          <FRegion>\n\
+            <PrimType>0</PrimType>\n\
+            <X>0</X>\n\
+            <Y>0</Y>\n\
+            <Z>0</Z>\n\
+            <dX>0.01</dX>\n\
+            <dY>1</dY>\n\
+            <dZ>1</dZ>\n\
+            <Radius>0</Radius>\n\
+            <R>0.4</R>\n\
+            <G>0.6</G>\n\
+            <B>0.4</B>\n\
+            <alpha>1</alpha>\n\
+            <DofFixed>63</DofFixed>\n\
+            <ForceX>0</ForceX>\n\
+            <ForceY>0</ForceY>\n\
+            <ForceZ>0</ForceZ>\n\
+            <TorqueX>0</TorqueX>\n\
+            <TorqueY>0</TorqueY>\n\
+            <TorqueZ>0</TorqueZ>\n\
+            <DisplaceX>0</DisplaceX>\n\
+            <DisplaceY>0</DisplaceY>\n\
+            <DisplaceZ>0</DisplaceZ>\n\
+            <AngDisplaceX>0</AngDisplaceX>\n\
+            <AngDisplaceY>0</AngDisplaceY>\n\
+            <AngDisplaceZ>0</AngDisplaceZ>\n\
+          </FRegion>\n\
+          <FRegion>\n\
+            <PrimType>0</PrimType>\n\
+            <X>0</X>\n\
+            <Y>0</Y>\n\
+            <Z>0</Z>\n\
+            <dX>1</dX>\n\
+            <dY>0.01</dY>\n\
+            <dZ>1</dZ>\n\
+            <Radius>0</Radius>\n\
+            <R>0.4</R>\n\
+            <G>0.6</G>\n\
+            <B>0.4</B>\n\
+            <alpha>1</alpha>\n\
+            <DofFixed>63</DofFixed>\n\
+            <ForceX>0</ForceX>\n\
+            <ForceY>0</ForceY>\n\
+            <ForceZ>0</ForceZ>\n\
+            <TorqueX>0</TorqueX>\n\
+            <TorqueY>0</TorqueY>\n\
+            <TorqueZ>0</TorqueZ>\n\
+            <DisplaceX>0</DisplaceX>\n\
+            <DisplaceY>0</DisplaceY>\n\
+            <DisplaceZ>0</DisplaceZ>\n\
+            <AngDisplaceX>0</AngDisplaceX>\n\
+            <AngDisplaceY>0</AngDisplaceY>\n\
+            <AngDisplaceZ>0</AngDisplaceZ>\n\
+          </FRegion>\n\
+          <FRegion>\n\
+            <PrimType>0</PrimType>\n\
+            <X>0.99</X>\n\
+            <Y>0</Y>\n\
+            <Z>0</Z>\n\
+            <dX>0.01</dX>\n\
+            <dY>1</dY>\n\
+            <dZ>1</dZ>\n\
+            <Radius>0</Radius>\n\
+            <R>0.4</R>\n\
+            <G>0.6</G>\n\
+            <B>0.4</B>\n\
+            <alpha>1</alpha>\n\
+            <DofFixed>63</DofFixed>\n\
+            <ForceX>0</ForceX>\n\
+            <ForceY>0</ForceY>\n\
+            <ForceZ>0</ForceZ>\n\
+            <TorqueX>0</TorqueX>\n\
+            <TorqueY>0</TorqueY>\n\
+            <TorqueZ>0</TorqueZ>\n\
+            <DisplaceX>0</DisplaceX>\n\
+            <DisplaceY>0</DisplaceY>\n\
+            <DisplaceZ>0</DisplaceZ>\n\
+            <AngDisplaceX>0</AngDisplaceX>\n\
+            <AngDisplaceY>0</AngDisplaceY>\n\
+            <AngDisplaceZ>0</AngDisplaceZ>\n\
+          </FRegion>\n\
+          <FRegion>\n\
+            <PrimType>0</PrimType>\n\
+            <X>0</X>\n\
+            <Y>0.99</Y>\n\
+            <Z>0</Z>\n\
+            <dX>1</dX>\n\
+            <dY>0.01</dY>\n\
+            <dZ>1</dZ>\n\
+            <Radius>0</Radius>\n\
+            <R>0</R>\n\
+            <G>1</G>\n\
+            <B>0</B>\n\
+            <alpha>1</alpha>\n\
+            <DofFixed>63</DofFixed>\n\
+            <ForceX>0</ForceX>\n\
+            <ForceY>0</ForceY>\n\
+            <ForceZ>0</ForceZ>\n\
+            <TorqueX>0</TorqueX>\n\
+            <TorqueY>0</TorqueY>\n\
+            <TorqueZ>0</TorqueZ>\n\
+            <DisplaceX>0</DisplaceX>\n\
+            <DisplaceY>0</DisplaceY>\n\
+            <DisplaceZ>0</DisplaceZ>\n\
+            <AngDisplaceX>0</AngDisplaceX>\n\
+            <AngDisplaceY>0</AngDisplaceY>\n\
+            <AngDisplaceZ>0</AngDisplaceZ>\n\
+          </FRegion>\n\
+        </Boundary_Conditions>\n\
         <Gravity>\n\
         <GravEnabled>" + str(env.gravity_enabled) + "</GravEnabled>\n\
         <GravAcc>-9.81</GravAcc>\n\
@@ -173,7 +288,7 @@ def write_voxelyze_file(sim, env, individual, run_directory, run_name):
         </Display>\n\
         <Mechanical>\n\
         <MatModel>0</MatModel>\n\
-        <Elastic_Mod>" + str(env.softest_material) + "e+006</Elastic_Mod>\n\
+        <Elastic_Mod>" + str(env.softest_material) + "e+007</Elastic_Mod>\n\
         <Plastic_Mod>0</Plastic_Mod>\n\
         <Yield_Stress>0</Yield_Stress>\n\
         <FailModel>0</FailModel>\n\
@@ -197,7 +312,7 @@ def write_voxelyze_file(sim, env, individual, run_directory, run_name):
         </Display>\n\
         <Mechanical>\n\
         <MatModel>0</MatModel>\n\
-        <Elastic_Mod>" + str(env.softest_material) + "e+008</Elastic_Mod>\n\
+        <Elastic_Mod>" + str(env.softest_material * 2) + "e+008</Elastic_Mod>\n\
         <Plastic_Mod>0</Plastic_Mod>\n\
         <Yield_Stress>0</Yield_Stress>\n\
         <FailModel>0</FailModel>\n\
@@ -352,4 +467,4 @@ def write_scenarios(env, individual, voxelyze_file):
             voxelyze_file.write("]]></Layer>\n")
         voxelyze_file.write("</ScenarioData>\n")
 
-    voxelyze_file.write("</ScenarioShapes>\n")    
+    voxelyze_file.write("</ScenarioShapes>\n")
