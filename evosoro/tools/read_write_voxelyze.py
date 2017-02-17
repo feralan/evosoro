@@ -377,16 +377,20 @@ def write_voxelyze_file(sim, env, individual, run_directory, run_name):
         <Structure Compression=\"ASCII_READABLE\">\n\
         <X_Voxels>" + str(individual.genotype.orig_size_xyz[0]) + "</X_Voxels>\n\
         <Y_Voxels>" + str(individual.genotype.orig_size_xyz[1]) + "</Y_Voxels>\n\
-        <Z_Voxels>" + str(individual.genotype.orig_size_xyz[2]) + "</Z_Voxels>\n")
+        <Z_Voxels>21</Z_Voxels>\n")
 
     all_tags = [details["tag"] for name, details in individual.genotype.to_phenotype_mapping.items()]
     if "<Data>" not in all_tags:  # not evolving topology -- fixed presence/absence of voxels
         voxelyze_file.write("<Data>\n")
-        for z in range(individual.genotype.orig_size_xyz[2]):
+        for z in range(21):
             voxelyze_file.write("<Layer><![CDATA[")
             for y in range(individual.genotype.orig_size_xyz[1]):
                 for x in range(individual.genotype.orig_size_xyz[0]):
-                    voxelyze_file.write(str(env.fixed_shape[z][y][x]))
+                    if z == 0:
+                        voxelyze_file.write(str(env.fixed_shape[z][y][x]))
+                    else:
+                        voxelyze_file.write(str(0))
+
             voxelyze_file.write("]]></Layer>\n")
         voxelyze_file.write("</Data>\n")
 
@@ -459,7 +463,7 @@ def write_scenarios(env, individual, voxelyze_file):
 
     for name, scenario in env.scenarios.iteritems():
         voxelyze_file.write("<ScenarioData>\n")
-        for z in range(individual.genotype.orig_size_xyz[2]):
+        for z in range(21):
             voxelyze_file.write("<Layer><![CDATA[")
             for y in range(individual.genotype.orig_size_xyz[1]):
                 for x in range(individual.genotype.orig_size_xyz[0]):

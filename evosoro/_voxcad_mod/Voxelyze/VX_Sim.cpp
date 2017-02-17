@@ -16,6 +16,7 @@ See <http://www.opensource.org/licenses/lgpl-3.0.html> for license details.
 #include <iostream>
 #include <fstream>
 #include <math.h>
+#include <iomanip>
 
 #ifdef USE_OPEN_GL
 #include "Utils/GL_Utils.h"
@@ -147,12 +148,14 @@ CVX_Sim& CVX_Sim::operator=(const CVX_Sim& rSim) //overload "="
 	return *this;
 }
 
-void CVX_Sim::EvaluateCurrentClass(CVXC_Structure str)
+void CVX_Sim::EvaluateCurrentClass(CVXC_Structure* str)
 {
-	double value;
+	double value = 0;
 
-	for (int i = 0; i < NumVox(); i++) {
-		value += VoxArray[i].GetPressure() * str.GetClassWeight(i);
+	for (int x = 0; x < 21; x++) {
+		for (int y = 0; y < 21; y++) {
+			value += abs(VoxArray[GetVoxIndex(x, y, 0)].GetPressure()) * str->GetClassWeight(x + y * 21);
+		}
 	}
 
 	classValues.push_back(value);

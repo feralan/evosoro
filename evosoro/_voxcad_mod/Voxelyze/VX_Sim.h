@@ -82,7 +82,7 @@ public:
 
 	// Classification Results
 	std::vector<int> classValues;
-	void EvaluateCurrentClass(CVXC_Structure str);
+	void EvaluateCurrentClass(CVXC_Structure* str);
 
 	//input information
 	CVX_Environment* pEnv; //!< Pointer to the physical environment information. This variable is set on import() and should not be manually changed.

@@ -68,7 +68,10 @@ int main(int argc, char *argv[])
 
 		Environment.pObj->Scenarios.unloadScenario(&Environment.pObj->Structure);
 		Environment.pObj->Scenarios.loadScenario(scenInd, &Environment.pObj->Structure);
-		// Simulator.SaveVXAFile("Prova.vxa");
+		
+		// char numstr[21];
+		// sprintf(numstr, "Prova_%d.vxa", scenInd);
+		// Simulator.SaveVXAFile(numstr);
 
 		Simulator.pEnv->UpdateCurTemp(Time);	//set the starting temperature (nac: pointer removed for debugging)
 
@@ -134,7 +137,7 @@ int main(int argc, char *argv[])
 		}
 
 		if (print_scrn) std::cout << "Ended at: " << Time << std::endl;
-		Simulator.EvaluateCurrentClass(structure);
+		Simulator.EvaluateCurrentClass(&Simulator.pEnv->pObj->Structure);
 	}
 
 	Simulator.SaveResultFile(Simulator.FitnessFileName);
