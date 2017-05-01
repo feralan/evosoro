@@ -81,7 +81,7 @@ public:
 	virtual bool ReadAdditionalSimXML(CXML_Rip* pXML, std::string* RetMessage = NULL) {return true;};
 
 	// Classification Results
-	std::vector<int> classValues;
+	std::vector<std::string> classValues;
 	void EvaluateCurrentClass(CVXC_Structure* str);
 
 	//input information

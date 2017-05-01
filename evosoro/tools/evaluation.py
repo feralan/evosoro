@@ -153,7 +153,11 @@ def evaluate_all(sim, env, pop, print_log, save_vxa_every, run_directory, run_na
                     print_log.message("{0} fit = {1} ({2} / {3})".format(ls_check, objective_values_dict[0],
                                                                          num_evals_finished,
                                                                          num_evaluated_this_gen))
-
+                    
+                    #copy fitness files in another folder for checking, made by Davide
+                    sub.call("mkdir " + run_directory + "/fitFilesEval/", shell=True)
+                    sub.call("cp "+run_directory+"/fitnessFiles/"+ls_check+" "+run_directory+"/fitFilesEval/", shell=True)
+                    
                     # now that we've read the fitness file, we can remove it
                     sub.call("rm " + run_directory + "/fitnessFiles/" + ls_check, shell=True)
 

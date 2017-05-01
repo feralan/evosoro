@@ -10,6 +10,10 @@ See <http://www.opensource.org/licenses/lgpl-3.0.html> for license details.
 
 #include "VX_SimGA.h"
 #include <iostream>
+#include <string>
+#include <sstream>
+
+using namespace std;
 
 CVX_SimGA::CVX_SimGA()
 {
@@ -56,6 +60,17 @@ void CVX_SimGA::WriteResultFile(CXML_Rip* pXML)
 //	pXML->UpLevel();
 	float number = classValues.size();
 
+	std::string pressureData, spaceS = " ";
+	
+	for(int i = 0; i < NumVox(); i++)
+	{
+		std::stringstream s;
+		s << VoxArray[i].GetPressure();
+		string press = s.str();
+		pressureData = pressureData + spaceS + press;
+		// pressureData = pressureData + " " + VoxArray[i].GetPressure();
+	}
+
 	pXML->DownLevel("Voxelyze_Sim_Result");
 
 		pXML->SetElAttribute("Version", "1.0");
@@ -67,8 +82,11 @@ void CVX_SimGA::WriteResultFile(CXML_Rip* pXML)
 					pXML->Element("ClassValue", classValues[i]);
 				}
 			pXML->UpLevel();
-
+			pXML->Element("Pressione", pressureData);
 		pXML->UpLevel();
+		
+		pXML->DownLevel("VoxData");
+			pXML->Element("Pressione", pressureData);
 
 		if (pEnv->getTimeBetweenTraces() > 0)
 		{

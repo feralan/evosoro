@@ -150,15 +150,19 @@ CVX_Sim& CVX_Sim::operator=(const CVX_Sim& rSim) //overload "="
 
 void CVX_Sim::EvaluateCurrentClass(CVXC_Structure* str)
 {
-	double value = 0;
+//	std::string value = 0;
+    std::string pressureData, spaceS = " ";    
 
 	for (int x = 0; x < 21; x++) {
 		for (int y = 0; y < 21; y++) {
-			value += abs(VoxArray[GetVoxIndex(x, y, 0)].GetPressure()) * str->GetClassWeight(x + y * 21);
+             std::stringstream s;
+			s << VoxArray[GetVoxIndex(x, y, 0)].GetPressure();
+        		std::string press = s.str();
+        		pressureData = pressureData + spaceS + press;
 		}
 	}
 
-	classValues.push_back(value);
+	classValues.push_back(pressureData);
 }
 
 void CVX_Sim::SaveVXAFile(std::string filename)

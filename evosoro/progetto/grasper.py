@@ -60,22 +60,22 @@ sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  
 # sub.call("chmod 755 ./qhull", shell=True)  # Execution right for qhull
 
 
-NUM_RANDOM_INDS = 1  # Number of random individuals to insert each generation
-MAX_GENS = 1000  # Number of generations
-POPSIZE = 15  # Population size (number of individuals in the population)
+NUM_RANDOM_INDS = 0  # Number of random individuals to insert each generation
+MAX_GENS = 0  # Number of generations
+POPSIZE = 2  # Population size (number of individuals in the population)
 IND_SIZE = (21, 21, 1)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
 SIM_TIME = 5  # (seconds), including INIT_TIME!
 INIT_TIME = 1
 DT_FRAC = 0.9  # Fraction of the optimal integration step. The lower, the more stable (and slower) the simulation.
 
-TIME_TO_TRY_AGAIN = 30  # (seconds) wait this long before assuming simulation crashed and resending
+TIME_TO_TRY_AGAIN = 120  # (seconds) wait this long before assuming simulation crashed and resending
 MAX_EVAL_TIME = 60  # (seconds) wait this long before giving up on evaluating this individual
 SAVE_LINEAGES = False
 MAX_TIME = 8  # (hours) how long to wait before autosuspending
 EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
 
 RUN_DIR = "grasper"  # Subdirectory where results are going to be generated
-RUN_NAME = "Basic"
+RUN_NAME = "grasper"
 CHECKPOINT_EVERY = 1  # How often to save an snapshot of the execution state to later resume the algorithm
 SAVE_POPULATION_EVERY = 1  # How often (every x generations) we save a snapshot of the evolving population
 
@@ -112,13 +112,14 @@ class MyPhenotype(Phenotype):
 my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
 
 # scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
-scenarios = {'pyramid_5' : pyramid_5, 'cube_3' : cube_3}
+scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7}
 # Setting up the environment object
 my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat, scenarios=scenarios)
 
 # Now specifying the objectives for the optimization.
 # Creating an objectives dictionary
 my_objective_dict = ObjectiveDict()
+my_objective_dict.add_objective(name="pressione", maximize=True, tag="<Pressione>")
 
 
 def evalClassPerf(classValues):
@@ -158,3 +159,9 @@ if __name__ == "__main__":
                                  max_eval_time=MAX_EVAL_TIME, time_to_try_again=TIME_TO_TRY_AGAIN,
                                  checkpoint_every=CHECKPOINT_EVERY, save_vxa_every=SAVE_POPULATION_EVERY,
                                  save_lineages=SAVE_LINEAGES)
+
+#import matplotlib.image as mimg
+#import matplotlib.pyplot as plt
+#imTry = np.array(my_pop.individuals[1].pressione)
+#imTry = np.reshape(imTry,[21,21])
+#plt.imshow(-imTry)

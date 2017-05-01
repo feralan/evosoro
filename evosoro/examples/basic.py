@@ -45,7 +45,7 @@ from evosoro.tools.algorithms import ParetoOptimization
 from evosoro.tools.utils import count_occurrences, make_material_tree
 from evosoro.tools.checkpointing import continue_from_checkpoint
 
-
+#%%
 VOXELYZE_VERSION = '_voxcad'
 # sub.call("rm ./voxelyze", shell=True)
 sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  # Making sure to have the most up-to-date version of the Voxelyze physics engine
@@ -54,9 +54,9 @@ sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  
 # sub.call("chmod 755 ./qhull", shell=True)  # Execution right for qhull
 
 
-NUM_RANDOM_INDS = 1  # Number of random individuals to insert each generation
-MAX_GENS = 1000  # Number of generations
-POPSIZE = 15  # Population size (number of individuals in the population)
+NUM_RANDOM_INDS = 4  # Number of random individuals to insert each generation
+MAX_GENS = 3  # Number of generations
+POPSIZE = 3  # Population size (number of individuals in the population)
 IND_SIZE = (6, 6, 6)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
 SIM_TIME = 5  # (seconds), including INIT_TIME!
 INIT_TIME = 1
@@ -159,6 +159,8 @@ my_objective_dict.add_objective(name="num_voxels", maximize=False, tag=None,
 my_objective_dict.add_objective(name="energy", maximize=False, tag=None,
                                 node_func=partial(count_occurrences, keys=[3, 4]),
                                 output_node_name="material")
+#%%
+my_objective_dict.add_objective(name="pressure", maximize=True, tag="<Pressure>")
 
 
 # Initializing a population of SoftBots
