@@ -26,13 +26,33 @@ def read_voxlyze_results(population, print_log, filename="softbotsOutput.xml"):
         exit(1)
 
     results = {rank: None for rank in range(len(population.objective_dict))}
+    this_file = open(filename)  # TODO: is there a way to just go back to the first line without reopening the file?
+    fContent = str(this_file.read())
     for rank, details in population.objective_dict.items():
-        this_file = open(filename)  # TODO: is there a way to just go back to the first line without reopening the file?
         tag = details["tag"]
-        isArray = details["isArray"]
-        evalFun = details["evalFun"]
+#        isArray = details["isArray"]
+#        evalFun = details["evalFun"]
 
         if tag is not None:
+            re_match_tag_arg = re.compile('<{tag}>.+</{tag}>'.format(tag = tag[1:-1]))
+            matches = re_match_tag_arg.findall(fContent)
+            more_values_same_tag = list()
+            for n_match in matches:
+                content = n_match[n_match.find(tag) + len(tag):n_match.find("</" + tag[1:])]
+                if re_float_array.match(content) is None:
+                    element = abs(float(content))
+                else:
+                    iter = re_float_array.finditer(content)
+                    element = list()
+                    for el in iter:
+                        if el:
+                            element.append(float(el.group(1)))
+                if len(matches) > 1:
+                    more_values_same_tag.append(element)
+                else:
+                    more_values_same_tag = element
+
+            results[rank] = more_values_same_tag
 #            if not isArray:
 #               for line in this_file:
 #                    if tag in line:
@@ -43,18 +63,22 @@ def read_voxlyze_results(population, print_log, filename="softbotsOutput.xml"):
 #                    if tag in line:
 #                        res.extend([abs(float(line[line.find(tag) + len(tag):line.find("</" + tag[1:])]))])
 #                results[rank] = evalFun(res)
-            for line in this_file:
-                if tag in line:
-                    str = line[line.find(tag) + len(tag):line.find("</" + tag[1:])]
-                    if re_float_array.match(str) is None:
-                        results[rank] = abs(float(str))
-                    else:
-                        iter = re_float_array.finditer(str)
-                        elements = list()
-                        for el in iter:
-                            if el:
-                                elements.append(float(el.group(1)))
-                        results[rank] = elements
+#            for line in this_file:
+#                if tag[1:-1] in line:
+#                if '<N'+tag[1:-1]+'>' in line:
+#                        Nstr = line[line.find(tag) + len(tag):line.find("</" + tag[1:])]
+#                        Nrep = abs(float(Nstr))
+#                if tag in line:
+#                str = line[line.find(tag) + len(tag):line.find("</" + tag[1:])]
+#                if re_float_array.match(str) is None:
+#                    results[rank] = abs(float(str))
+#                else:
+#                    iter = re_float_array.finditer(str)
+#                    elements = list()
+#                    for el in iter:
+#                       if el:
+#                            elements.append(float(el.group(1)))
+#                    results[rank] = elements
     return results
 
 

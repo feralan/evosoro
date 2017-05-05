@@ -83,10 +83,11 @@ class PopulationBasedOptimizer(Optimizer):
             sub.call("touch {}/RUNNING".format(self.directory), shell=True)
             self.evaluate(self.sim, self.env, self.pop, print_log, save_vxa_every, self.directory, self.name,
                           max_eval_time, time_to_try_again, save_lineages)
-            self.select(self.pop)  # only produces dominated_by stats, no selection happening (population not replaced)
-            write_gen_stats(self.pop, self.directory, self.name, save_vxa_every, save_pareto, save_nets)
+            if max_gens is not 0:
+                self.select(self.pop)  # only produces dominated_by stats, no selection happening (population not replaced)
+                write_gen_stats(self.pop, self.directory, self.name, save_vxa_every, save_pareto, save_nets)
 
-        while self.pop.gen < max_gens:
+        while self.pop.gen < max_gens and max_gens != 0:
 
             if self.pop.gen % checkpoint_every == 0:
                 print_log.message("Saving checkpoint at generation {0}".format(self.pop.gen + 1), timer_name="start")

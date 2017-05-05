@@ -50,6 +50,7 @@ from evosoro.softbot import Genotype, Phenotype, Population
 from evosoro.tools.algorithms import ParetoOptimization
 from evosoro.tools.utils import count_occurrences, make_material_tree
 from evosoro.tools.checkpointing import continue_from_checkpoint
+from evosoro.tools.evaluation import JustSimulateDontEvaluate
 
 
 VOXELYZE_VERSION = '_voxcad_mod'
@@ -62,14 +63,14 @@ sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  
 
 NUM_RANDOM_INDS = 0  # Number of random individuals to insert each generation
 MAX_GENS = 0  # Number of generations
-POPSIZE = 2  # Population size (number of individuals in the population)
+POPSIZE = 1  # Population size (number of individuals in the population)
 IND_SIZE = (21, 21, 1)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
 SIM_TIME = 5  # (seconds), including INIT_TIME!
 INIT_TIME = 1
 DT_FRAC = 0.9  # Fraction of the optimal integration step. The lower, the more stable (and slower) the simulation.
 
-TIME_TO_TRY_AGAIN = 120  # (seconds) wait this long before assuming simulation crashed and resending
-MAX_EVAL_TIME = 60  # (seconds) wait this long before giving up on evaluating this individual
+TIME_TO_TRY_AGAIN = 180  # (seconds) wait this long before assuming simulation crashed and resending
+MAX_EVAL_TIME = 180  # (seconds) wait this long before giving up on evaluating this individual
 SAVE_LINEAGES = False
 MAX_TIME = 8  # (hours) how long to wait before autosuspending
 EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
@@ -130,13 +131,17 @@ def evalClassPerf(classValues):
 
 # Adding an objective named "fitness", which we want to maximize. This information is returned by Voxelyze
 # in a fitness .xml file, with a tag named "NormFinalDist"
-my_objective_dict.add_objective(name="fitness", maximize=True, tag="<ClassValue>", isArray=True, evalFun=evalClassPerf)
+my_objective_dict.add_objective(name="fitness", maximize=None, tag="<ClassValue>", isArray=True, evalFun=evalClassPerf)
+#!!!there are n ClassValues depending on the number of scenarios: they have to be distinguished somehow
 
 # Initializing a population of SoftBots
 my_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
 
 # Setting up our optimization
 my_optimization = ParetoOptimization(my_sim, my_env, my_pop)
+my_optimization.evaluate = JustSimulateDontEvaluate
+
+
 
 # And, finally, our main
 if __name__ == "__main__":
