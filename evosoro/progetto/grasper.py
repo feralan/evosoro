@@ -54,12 +54,9 @@ from evosoro.tools.evaluation import JustSimulateDontEvaluate
 
 
 VOXELYZE_VERSION = '_voxcad_mod'
-# sub.call("rm ./voxelyze", shell=True)
 sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  # Making sure to have the most up-to-date version of the Voxelyze physics engine
-# sub.call("chmod 755 ./voxelyze", shell=True)
-# sub.call("cp ../" + VOXELYZE_VERISON + "/qhull .", shell=True)  # Auxiliary qhull executable, used in some experiments to compute the convex hull of the robot
-# sub.call("chmod 755 ./qhull", shell=True)  # Execution right for qhull
 
+# -------------------------------------- Generazione matrice delle pressioni ----------------------------------------
 
 NUM_RANDOM_INDS = 0  # Number of random individuals to insert each generation
 MAX_GENS = 0  # Number of generations
@@ -75,8 +72,8 @@ SAVE_LINEAGES = False
 MAX_TIME = 8  # (hours) how long to wait before autosuspending
 EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
 
-RUN_DIR = "grasper"  # Subdirectory where results are going to be generated
-RUN_NAME = "grasper"
+RUN_DIR = "grasper_calc_pressure"  # Subdirectory where results are going to be generated
+RUN_NAME = "grasper_calc_pressure"
 CHECKPOINT_EVERY = 1  # How often to save an snapshot of the execution state to later resume the algorithm
 SAVE_POPULATION_EVERY = 1  # How often (every x generations) we save a snapshot of the evolving population
 
@@ -91,13 +88,6 @@ class MyGenotype(Genotype):
         # We instantiate a new genotype for each individual which must have the following properties
         Genotype.__init__(self, orig_size_xyz=IND_SIZE)
 
-        # The genotype consists of a single Compositional Pattern Producing Network (CPPN),
-        # with multiple inter-dependent outputs determining the material constituting each voxel
-        # (e.g. two types of active voxels, actuated with a different phase, two types of passive voxels, softer and stiffer)
-        # The material IDs that you will see in the phenotype mapping dependencies refer to a predefined palette of materials
-        # currently hardcoded in tools/read_write_voxelyze.py:
-        # (0: empty, 1: passiveSoft, 2: passiveHard, 3: active+, 4:active-),
-        # but this can be changed.
         self.add_network(CPPN(output_node_names=["weight"]))
 
         self.to_phenotype_mapping.add_map(name="weight", tag="<ClassWeight>",
@@ -120,19 +110,7 @@ my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_mat
 # Now specifying the objectives for the optimization.
 # Creating an objectives dictionary
 my_objective_dict = ObjectiveDict()
-my_objective_dict.add_objective(name="pressione", maximize=True, tag="<Pressione>")
-
-
-def evalClassPerf(classValues):
-    d = np.diff(classValues)
-    d = np.abs(d)
-    d = np.sum(d)
-    return d
-
-# Adding an objective named "fitness", which we want to maximize. This information is returned by Voxelyze
-# in a fitness .xml file, with a tag named "NormFinalDist"
-my_objective_dict.add_objective(name="fitness", maximize=None, tag="<ClassValue>", isArray=True, evalFun=evalClassPerf)
-#!!!there are n ClassValues depending on the number of scenarios: they have to be distinguished somehow
+my_objective_dict.add_objective(name="fitness", maximize=None, tag="<ClassValue>", isArray=True)
 
 # Initializing a population of SoftBots
 my_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
@@ -141,32 +119,17 @@ my_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE
 my_optimization = ParetoOptimization(my_sim, my_env, my_pop)
 my_optimization.evaluate = JustSimulateDontEvaluate
 
-
-
 # And, finally, our main
 if __name__ == "__main__":
-
-    # my_optimization.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
-    #                     directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
-    #                     time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
-    #                     save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
-
-    # Here is how to use the checkpointing mechanism
-    if not os.path.isfile("./" + RUN_DIR + "/checkpoint.pickle"):
-        # start optimization
-        my_optimization.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
-                            directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
-                            time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
-                            save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
-
-    else:
-        continue_from_checkpoint(directory=RUN_DIR, additional_gens=EXTRA_GENS, max_hours_runtime=MAX_TIME,
-                                 max_eval_time=MAX_EVAL_TIME, time_to_try_again=TIME_TO_TRY_AGAIN,
-                                 checkpoint_every=CHECKPOINT_EVERY, save_vxa_every=SAVE_POPULATION_EVERY,
-                                 save_lineages=SAVE_LINEAGES)
+    my_optimization.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
+                        directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
+                        time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
+                        save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
 
 #import matplotlib.image as mimg
 #import matplotlib.pyplot as plt
 #imTry = np.array(my_pop.individuals[1].pressione)
 #imTry = np.reshape(imTry,[21,21])
 #plt.imshow(-imTry)
+
+# -------------------------- Esecuzione GA ---------------------------
