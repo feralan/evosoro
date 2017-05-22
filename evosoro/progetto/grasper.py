@@ -51,6 +51,7 @@ from evosoro.tools.algorithms import ParetoOptimization
 from evosoro.tools.utils import count_occurrences, make_material_tree
 from evosoro.tools.checkpointing import continue_from_checkpoint
 from evosoro.tools.evaluation import JustSimulateDontEvaluate
+from evosoro.tools.evaluation import justEvaluateDontSimulate
 
 
 VOXELYZE_VERSION = '_voxcad_mod'
@@ -192,6 +193,7 @@ my_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE
 
 # Setting up our optimization
 my_optimization = ParetoOptimization(my_sim, my_env, my_pop)
+my_optimization.evaluate = justEvaluateDontSimulate
 
 # And, finally, our main
 if __name__ == "__main__":
