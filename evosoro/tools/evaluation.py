@@ -481,12 +481,11 @@ def justEvaluateDontSimulate(sim, env, pop, print_log, save_vxa_every, run_direc
     start_time = time.time()
     num_evaluated_this_gen = 0
     ids_to_analyze = []
-
     for ind in pop:
         num_evaluated_this_gen = num_evaluated_this_gen + 1
-        for rank, details in pop.objective_dict.items():
-            setattr(ind, 'fitness', calcInterDistance(None, additionalData))
-            setattr(ind, 'intraDistance', calcIntraDistance(None, additionalData))
+        weights = np.concatenate(ind.genotype.to_phenotype_mapping.items()[0][-1]['state'])
+        setattr(ind, 'fitness', calcInterDistance(weights, additionalData))
+        setattr(ind, 'intraDistance', calcIntraDistance(weights, additionalData))
 
 
     print_log.message("\nAll evals finished in {} seconds".format(time.time() - start_time))
