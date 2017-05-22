@@ -54,8 +54,8 @@ sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  
 # sub.call("chmod 755 ./qhull", shell=True)  # Execution right for qhull
 
 
-NUM_RANDOM_INDS = 4  # Number of random individuals to insert each generation
-MAX_GENS = 3  # Number of generations
+NUM_RANDOM_INDS = 2  # Number of random individuals to insert each generation
+MAX_GENS = 2  # Number of generations
 POPSIZE = 3  # Population size (number of individuals in the population)
 IND_SIZE = (6, 6, 6)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
 SIM_TIME = 5  # (seconds), including INIT_TIME!

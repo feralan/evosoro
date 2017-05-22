@@ -149,7 +149,7 @@ SAVE_LINEAGES = False
 MAX_TIME = 8  # (hours) how long to wait before autosuspending
 EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
 
-RUN_DIR = "grasper_calc_pressure"  # Subdirectory where results are going to be generated
+RUN_DIR = "grasper_calc_pressure2"  # Subdirectory where results are going to be generated
 RUN_NAME = "grasper_calc_pressure"
 CHECKPOINT_EVERY = 1  # How often to save an snapshot of the execution state to later resume the algorithm
 SAVE_POPULATION_EVERY = 1  # How often (every x generations) we save a snapshot of the evolving population
