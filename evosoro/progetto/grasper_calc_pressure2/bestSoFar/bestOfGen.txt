@@ -1,0 +1,1 @@
+gen		id		dom		parent_id		variation_type		fitness		parent_fitness		intraDistance		parent_intraDistance		weight_different_from_parent		mean_weight		mean_parent_weight		mean_parent_diff_weight

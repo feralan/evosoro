@@ -104,6 +104,7 @@ class MyPhenotype(Phenotype):
 my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
 
 # scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
+labels = [1, 2]
 scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7}
 # Setting up the environment object
 my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat, scenarios=scenarios)
@@ -132,6 +133,15 @@ if __name__ == "__main__":
 #imTry = np.array(my_pop.individuals[1].pressione)
 #imTry = np.reshape(imTry,[21,21])
 #plt.imshow(-imTry)
+
+class AdditionalData(object):
+    labels = []
+    pressures = []
+
+
+additionalData = AdditionalData()
+additionalData.labels = labels
+additionalData.pressures = pressure_pop[0].fitness
 
 # -------------------------- Esecuzione GA ---------------------------
 
@@ -200,4 +210,4 @@ if __name__ == "__main__":
     my_optimization.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
                         directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
                         time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
-                        save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
+                        save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES, additionalData=additionalData)
