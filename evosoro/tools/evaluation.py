@@ -4,6 +4,7 @@ import numpy as np
 import subprocess as sub
 
 from read_write_voxelyze import read_voxlyze_results, write_voxelyze_file
+from calcIntraDistance, calcInterDistance import calcSimulatedFitness
 
 
 # TODO: make eval times relative to the number of simulated voxels
@@ -438,3 +439,56 @@ def JustSimulateDontEvaluate(sim, env, pop, print_log, save_vxa_every, run_direc
     print_log.message("\nAll Voxelyze evals finished in {} seconds".format(time.time() - start_time))
     print_log.message("num_imported_this_gen: {0}".format(num_imported_this_gen))
     print_log.message("total_evaluations: {}".format(pop.total_evaluations))
+
+
+
+def justEvaluateDontSimulate(sim, env, pop, print_log, save_vxa_every, run_directory, run_name, max_eval_time=60,
+                 time_to_try_again=10, save_lineages=False, additionalData=None):
+    """Evaluate all individuals of the population in VoxCad.
+
+    Parameters
+    ----------
+    sim : Sim
+        Configures parameters of the Voxelyze simulation.
+
+    env : Env
+        Configures parameters of the Voxelyze environment.
+
+    pop : Population
+        This provides the individuals to evaluate.
+
+    print_log : PrintLog()
+        For logging with time stamps
+
+    save_vxa_every : int
+        Which generations to save information about individual SoftBots
+
+    run_directory : string
+        Where to save
+
+    run_name : string
+        Experiment name for files
+
+    max_eval_time : int
+        How long to run physical simulation per ind in pop
+
+    time_to_try_again : int
+        How long to wait until relaunching remaining unevaluated (crashed?) simulations
+
+    save_lineages : bool
+        Save the vxa of every ancestor of the surviving individual
+
+    """
+    start_time = time.time()
+    num_evaluated_this_gen = 0
+    ids_to_analyze = []
+
+    for ind in pop:
+        num_evaluated_this_gen = num_evaluated_this_gen + 1
+        for rank, details in pop.objective_dict.items():
+            setattr(ind, 'fitness', calcInterDistance(None, additionalData))
+            setattr(ind, 'intraDistance', calcIntraDistance(None, additionalData))
+
+
+    print_log.message("\nAll evals finished in {} seconds".format(time.time() - start_time))
+    print_log.message("num_evaluated_this_gen: {0}".format(num_evaluated_this_gen))

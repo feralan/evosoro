@@ -59,7 +59,7 @@ class PopulationBasedOptimizer(Optimizer):
 
     def run(self, max_hours_runtime=29, max_gens=3000, num_random_individuals=1, directory="tests_data", name="TestRun",
             max_eval_time=60, time_to_try_again=10, checkpoint_every=100, save_vxa_every=100, save_pareto=False,
-            save_nets=False, save_lineages=False, continued_from_checkpoint=False):
+            save_nets=False, save_lineages=False, continued_from_checkpoint=False, additionalData=None):
 
         if self.autosuspended:
             sub.call("rm %s/AUTOSUSPENDED" % directory, shell=True)
@@ -124,7 +124,7 @@ class PopulationBasedOptimizer(Optimizer):
             print_log.message("Starting fitness evaluation", timer_name="start")
             print_log.reset_timer("evaluation")
             self.evaluate(self.sim, self.env, self.pop, print_log, save_vxa_every, self.directory, self.name,
-                          max_eval_time, time_to_try_again, save_lineages)
+                          max_eval_time, time_to_try_again, save_lineages, additionalData)
             print_log.message("Fitness evaluation finished", timer_name="evaluation")  # record total eval time in log
 
             # perform selection by pareto fronts
