@@ -487,6 +487,10 @@ def justEvaluateDontSimulate(sim, env, pop, print_log, save_vxa_every, run_direc
         setattr(ind, 'fitness', calcInterDistance(weights, additionalData))
         setattr(ind, 'intraDistance', calcIntraDistance(weights, additionalData))
 
+        if ind.fitness > pop.best_fit_so_far:
+            pop.best_fit_so_far = ind.fitness
+            np.savetxt(run_directory + "/bestSoFar/fitOnly/" + run_name + "--Gen_%04i--fit_%.08f--id_%05i.txt" % (pop.gen, ind.fitness, ind.id), weights, delimiter=',')
+
 
     print_log.message("\nAll evals finished in {} seconds".format(time.time() - start_time))
     print_log.message("num_evaluated_this_gen: {0}".format(num_evaluated_this_gen))

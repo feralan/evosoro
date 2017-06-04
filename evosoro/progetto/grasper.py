@@ -67,8 +67,8 @@ SIM_TIME = 5  # (seconds), including INIT_TIME!
 INIT_TIME = 1
 DT_FRAC = 0.9  # Fraction of the optimal integration step. The lower, the more stable (and slower) the simulation.
 
-TIME_TO_TRY_AGAIN = 180  # (seconds) wait this long before assuming simulation crashed and resending
-MAX_EVAL_TIME = 180  # (seconds) wait this long before giving up on evaluating this individual
+TIME_TO_TRY_AGAIN = 1800  # (seconds) wait this long before assuming simulation crashed and resending
+MAX_EVAL_TIME = 1800  # (seconds) wait this long before giving up on evaluating this individual
 SAVE_LINEAGES = False
 MAX_TIME = 8  # (hours) how long to wait before autosuspending
 EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
@@ -168,6 +168,8 @@ SEED = 1
 random.seed(SEED)  # Initializing the random number generator for reproducibility
 np.random.seed(SEED)
 
+def phenoClip(elements):
+    return np.clip(elements, 0, 1000)
 
 # Defining a custom genotype, inheriting from base class Genotype
 class MyGenotype(Genotype):
@@ -178,7 +180,7 @@ class MyGenotype(Genotype):
         self.add_network(CPPN(output_node_names=["weight"]))
 
         self.to_phenotype_mapping.add_map(name="weight", tag="<ClassWeight>",
-                                          func=np.abs)
+                                          func=phenoClip)
 
 # Define a custom phenotype, inheriting from the Phenotype class
 class MyPhenotype(Phenotype):
