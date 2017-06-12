@@ -230,7 +230,7 @@ def evaluate_all(sim, env, pop, print_log, save_vxa_every, run_directory, run_na
 
 
 def JustSimulateDontEvaluate(sim, env, pop, print_log, save_vxa_every, run_directory, run_name, max_eval_time=60,
-                 time_to_try_again=10, save_lineages=False):
+                 time_to_try_again=10, save_lineages=False, additionalData=None):
     """just simulate and get fitness data from files.
 
     Parameters
@@ -484,7 +484,7 @@ def justEvaluateDontSimulate(sim, env, pop, print_log, save_vxa_every, run_direc
     for ind in pop:
         num_evaluated_this_gen = num_evaluated_this_gen + 1
         weights = np.concatenate(ind.genotype.to_phenotype_mapping.items()[0][-1]['state'])
-        setattr(ind, 'fitness', calcInterDistance(weights, additionalData))
+        setattr(ind, 'fitness', 0.5*calcInterDistance(weights, additionalData) + 0.25*1/calcIntraDistance(weights, additionalData) + 0.25*1/np.sum(weights))
         setattr(ind, 'intraDistance', calcIntraDistance(weights, additionalData))
 
         if ind.fitness > pop.best_fit_so_far:

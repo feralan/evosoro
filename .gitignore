@@ -84,8 +84,6 @@ MANIFEST
 *.fuse_hidden*
 *~
 
-evosoro/_voxcad_mod/Makefile
-
 *.a
 
 evosoro/_voxcad_mod/release/VoxCad

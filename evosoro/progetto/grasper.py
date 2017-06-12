@@ -105,7 +105,7 @@ my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=I
 
 # scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
 labels = [1, 2]
-scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7}
+scenarios = {'pyramid_5' : pyramid_5, 'cube_5' : cube_5}
 # Setting up the environment object
 my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat, scenarios=scenarios)
 
@@ -145,9 +145,9 @@ additionalData.pressures = pressure_pop[0].fitness
 
 # -------------------------- Esecuzione GA ---------------------------
 
-NUM_RANDOM_INDS = 2  # Number of random individuals to insert each generation
-MAX_GENS = 2  # Number of generations
-POPSIZE = 1  # Population size (number of individuals in the population)
+NUM_RANDOM_INDS = 100  # Number of random individuals to insert each generation
+MAX_GENS = 35  # Number of generations
+POPSIZE = 1000  # Population size (number of individuals in the population)
 IND_SIZE = (21, 21, 1)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
 SIM_TIME = 5  # (seconds), including INIT_TIME!
 INIT_TIME = 1

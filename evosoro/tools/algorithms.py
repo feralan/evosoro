@@ -82,7 +82,7 @@ class PopulationBasedOptimizer(Optimizer):
             make_gen_directories(self.pop, self.directory, save_vxa_every, save_nets)
             sub.call("touch {}/RUNNING".format(self.directory), shell=True)
             self.evaluate(self.sim, self.env, self.pop, print_log, save_vxa_every, self.directory, self.name,
-                          max_eval_time, time_to_try_again, save_lineages)
+                          max_eval_time, time_to_try_again, save_lineages, additionalData)
             if max_gens is not 0:
                 self.select(self.pop)  # only produces dominated_by stats, no selection happening (population not replaced)
                 write_gen_stats(self.pop, self.directory, self.name, save_vxa_every, save_pareto, save_nets)
