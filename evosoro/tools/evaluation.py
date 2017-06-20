@@ -484,7 +484,11 @@ def justEvaluateDontSimulate(sim, env, pop, print_log, save_vxa_every, run_direc
     for ind in pop:
         num_evaluated_this_gen = num_evaluated_this_gen + 1
         weights = np.concatenate(ind.genotype.to_phenotype_mapping.items()[0][-1]['state'])
-        setattr(ind, 'fitness', 0.5*calcInterDistance(weights, additionalData) + 0.25*1/calcIntraDistance(weights, additionalData) + 0.25*1/np.sum(weights))
+        # setattr(ind, 'fitness', 0.8*calcInterDistance(weights, additionalData) + 0.2*1/(1+np.sum(weights)))
+        interDistanceFit = np.clip(calcInterDistance(weights, additionalData), 0, 4000)
+        intraDistanceFit = np.clip(1/(1 + calcIntraDistance(weights, additionalData)), 0, 1000)
+        sumOfAllWeight = np.clip(1/(1 + np.sum(weights)), 0, 1000)
+        setattr(ind, 'fitness', 0.5*interDistanceFit + 0.25*intraDistanceFit + 0.25*sumOfAllWeight)
         setattr(ind, 'intraDistance', calcIntraDistance(weights, additionalData))
 
         if ind.fitness > pop.best_fit_so_far:

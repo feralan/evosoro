@@ -103,9 +103,10 @@ class MyPhenotype(Phenotype):
 # Setting up the simulation object
 my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
 
-# scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
-labels = [1, 2]
-scenarios = {'pyramid_5' : pyramid_5, 'cube_5' : cube_5}
+labels = [1, 1, 2, 2]
+scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
+# labels = [1, 2]
+# scenarios = {'pyramid_5' : pyramid_5, 'cube_5' : cube_5}
 # Setting up the environment object
 my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat, scenarios=scenarios)
 
@@ -146,7 +147,7 @@ additionalData.pressures = pressure_pop[0].fitness
 # -------------------------- Esecuzione GA ---------------------------
 
 NUM_RANDOM_INDS = 100  # Number of random individuals to insert each generation
-MAX_GENS = 35  # Number of generations
+MAX_GENS = 45  # Number of generations
 POPSIZE = 1000  # Population size (number of individuals in the population)
 IND_SIZE = (21, 21, 1)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
 SIM_TIME = 5  # (seconds), including INIT_TIME!
@@ -159,7 +160,7 @@ SAVE_LINEAGES = False
 MAX_TIME = 8  # (hours) how long to wait before autosuspending
 EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
 
-RUN_DIR = "grasper_calc_pressure2"  # Subdirectory where results are going to be generated
+RUN_DIR = "45_1000_fitnessclip_4000"  # Subdirectory where results are going to be generated
 RUN_NAME = "grasper_calc_pressure"
 CHECKPOINT_EVERY = 1  # How often to save an snapshot of the execution state to later resume the algorithm
 SAVE_POPULATION_EVERY = 1  # How often (every x generations) we save a snapshot of the evolving population
@@ -169,7 +170,8 @@ random.seed(SEED)  # Initializing the random number generator for reproducibilit
 np.random.seed(SEED)
 
 def phenoClip(elements):
-    return np.clip(elements, 0, 1000)
+    return elements
+    # return np.clip(elements, 0, 1000)
 
 # Defining a custom genotype, inheriting from base class Genotype
 class MyGenotype(Genotype):
