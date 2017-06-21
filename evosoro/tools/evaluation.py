@@ -4,7 +4,7 @@ import numpy as np
 import subprocess as sub
 
 from read_write_voxelyze import read_voxlyze_results, write_voxelyze_file
-from simulatedFitness import calcIntraDistance, calcInterDistance
+from simulatedFitness import calcIntraDistance, calcInterDistance, silhouetteCoeff
 
 # TODO: make eval times relative to the number of simulated voxels
 # TODO: right now just saving files gen-id-fitness; but this should be more flexible (as option in objective dict?)
@@ -485,15 +485,19 @@ def justEvaluateDontSimulate(sim, env, pop, print_log, save_vxa_every, run_direc
         num_evaluated_this_gen = num_evaluated_this_gen + 1
         weights = np.concatenate(ind.genotype.to_phenotype_mapping.items()[0][-1]['state'])
         # setattr(ind, 'fitness', 0.8*calcInterDistance(weights, additionalData) + 0.2*1/(1+np.sum(weights)))
-        interDistanceFit = np.clip(calcInterDistance(weights, additionalData), 0, 4000)
-        intraDistanceFit = np.clip(1/(1 + calcIntraDistance(weights, additionalData)), 0, 1000)
-        sumOfAllWeight = np.clip(1/(1 + np.sum(weights)), 0, 1000)
-        setattr(ind, 'fitness', 0.5*interDistanceFit + 0.25*intraDistanceFit + 0.25*sumOfAllWeight)
-        setattr(ind, 'intraDistance', calcIntraDistance(weights, additionalData))
+        # interDistanceFit = np.clip(calcInterDistance(weights, additionalData), 0, 10000)
+        # interDistanceFit = calcInterDistance(weights, additionalData)
+        # intraDistanceFit = calcIntraDistance(weights, additionalData)
+        sumOfAllWeights = np.sum(np.abs(weights))
+
+        setattr(ind, 'fitness', silhouetteCoeff(weights, additionalData))
+        # setattr(ind, 'fitness', interDistanceFit)
+        # setattr(ind, 'intraDistance', intraDistanceFit)
+        setattr(ind, 'sumOfAllWeights', sumOfAllWeights)
 
         if ind.fitness > pop.best_fit_so_far:
             pop.best_fit_so_far = ind.fitness
-            np.savetxt(run_directory + "/bestSoFar/fitOnly/" + run_name + "--Gen_%04i--fit_%.08f--id_%05i.txt" % (pop.gen, ind.fitness, ind.id), weights, delimiter=',')
+            np.savetxt(run_directory + "/bestSoFar/fitOnly/" + run_name + "--Gen_%04i--Fit_%.08f--id_%05i.txt" % (pop.gen, ind.fitness, ind.id), weights, delimiter=',')
 
 
     print_log.message("\nAll evals finished in {} seconds".format(time.time() - start_time))

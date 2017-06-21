@@ -249,10 +249,16 @@ def write_pareto_front(population, run_directory, run_name):
     ind = population[0]  # first individual
     for individual in population:
         if len(individual.dominated_by) == 0:
-            sub.call("mv " + run_directory + "/voxelyzeFiles/" + run_name + "--id_%05i.vxa" % individual.id +
-                     " " + run_directory + "/bestSoFar/paretoFronts/Gen_%04i/" % population.gen + "/" +
-                     run_name + "Gen_%04i--Fit_%.08f--id_%05i--dom_%d.vxa" %
-                     (population.gen, individual.fitness, individual.id, len(individual.dominated_by)), shell=True)
+            weights = np.concatenate(individual.genotype.to_phenotype_mapping.items()[0][-1]['state'])
+
+            np.savetxt(run_directory + "/bestSoFar/paretoFronts/Gen_%04i/" % population.gen + "/" + run_name +
+                "Gen_%04i--Fit_%.08f--id_%05i--dom_%d.txt" %
+                (population.gen, individual.fitness, individual.id, len(individual.dominated_by)), weights, delimiter=',')
+
+            # sub.call("mv " + run_directory + "/voxelyzeFiles/" + run_name + "--id_%05i.vxa" % individual.id +
+            #          " " + run_directory + "/bestSoFar/paretoFronts/Gen_%04i/" % population.gen + "/" +
+            #          run_name + "Gen_%04i--Fit_%.08f--id_%05i--dom_%d.vxa" %
+            #          (population.gen, individual.fitness, individual.id, len(individual.dominated_by)), shell=True)
         else:
             break
 

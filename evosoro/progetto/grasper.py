@@ -57,77 +57,77 @@ from evosoro.tools.evaluation import justEvaluateDontSimulate
 VOXELYZE_VERSION = '_voxcad_mod'
 sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  # Making sure to have the most up-to-date version of the Voxelyze physics engine
 
-# -------------------------------------- Generazione matrice delle pressioni ----------------------------------------
-
-NUM_RANDOM_INDS = 0  # Number of random individuals to insert each generation
-MAX_GENS = 0  # Number of generations
-POPSIZE = 1  # Population size (number of individuals in the population)
-IND_SIZE = (21, 21, 1)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
-SIM_TIME = 5  # (seconds), including INIT_TIME!
-INIT_TIME = 1
-DT_FRAC = 0.9  # Fraction of the optimal integration step. The lower, the more stable (and slower) the simulation.
-
-TIME_TO_TRY_AGAIN = 1800  # (seconds) wait this long before assuming simulation crashed and resending
-MAX_EVAL_TIME = 1800  # (seconds) wait this long before giving up on evaluating this individual
-SAVE_LINEAGES = False
-MAX_TIME = 8  # (hours) how long to wait before autosuspending
-EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
-
-RUN_DIR = "grasper_calc_pressure"  # Subdirectory where results are going to be generated
-RUN_NAME = "grasper_calc_pressure"
-CHECKPOINT_EVERY = 1  # How often to save an snapshot of the execution state to later resume the algorithm
-SAVE_POPULATION_EVERY = 1  # How often (every x generations) we save a snapshot of the evolving population
-
-SEED = 1
-random.seed(SEED)  # Initializing the random number generator for reproducibility
-np.random.seed(SEED)
-
-
-# Defining a custom genotype, inheriting from base class Genotype
-class MyGenotype(Genotype):
-    def __init__(self):
-        # We instantiate a new genotype for each individual which must have the following properties
-        Genotype.__init__(self, orig_size_xyz=IND_SIZE)
-
-        self.add_network(CPPN(output_node_names=["weight"]))
-
-        self.to_phenotype_mapping.add_map(name="weight", tag="<ClassWeight>",
-                                          func=np.abs)
-
-# Define a custom phenotype, inheriting from the Phenotype class
-class MyPhenotype(Phenotype):
-    def is_valid(self):
-        return True
-
-
-# Setting up the simulation object
-my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
-
-labels = [1, 1, 2, 2]
-scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
-# labels = [1, 2]
-# scenarios = {'pyramid_5' : pyramid_5, 'cube_5' : cube_5}
-# Setting up the environment object
-my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat, scenarios=scenarios)
-
-# Now specifying the objectives for the optimization.
-# Creating an objectives dictionary
-my_objective_dict = ObjectiveDict()
-my_objective_dict.add_objective(name="fitness", maximize=None, tag="<ClassValue>", isArray=True)
-
-# Initializing a population of SoftBots
-pressure_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
-
-# Setting up our optimization
-my_optimization = ParetoOptimization(my_sim, my_env, pressure_pop)
-my_optimization.evaluate = JustSimulateDontEvaluate
-
-# And, finally, our main
-if __name__ == "__main__":
-    my_optimization.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
-                        directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
-                        time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
-                        save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
+# # -------------------------------------- Generazione matrice delle pressioni ----------------------------------------
+#
+# NUM_RANDOM_INDS = 0  # Number of random individuals to insert each generation
+# MAX_GENS = 0  # Number of generations
+# POPSIZE = 1  # Population size (number of individuals in the population)
+# IND_SIZE = (21, 21, 1)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
+# SIM_TIME = 5  # (seconds), including INIT_TIME!
+# INIT_TIME = 1
+# DT_FRAC = 0.9  # Fraction of the optimal integration step. The lower, the more stable (and slower) the simulation.
+#
+# TIME_TO_TRY_AGAIN = 1800  # (seconds) wait this long before assuming simulation crashed and resending
+# MAX_EVAL_TIME = 1800  # (seconds) wait this long before giving up on evaluating this individual
+# SAVE_LINEAGES = False
+# MAX_TIME = 8  # (hours) how long to wait before autosuspending
+# EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
+#
+# RUN_DIR = "grasper_calc_pressure"  # Subdirectory where results are going to be generated
+# RUN_NAME = "grasper_calc_pressure"
+# CHECKPOINT_EVERY = 1  # How often to save an snapshot of the execution state to later resume the algorithm
+# SAVE_POPULATION_EVERY = 1  # How often (every x generations) we save a snapshot of the evolving population
+#
+# SEED = 1
+# random.seed(SEED)  # Initializing the random number generator for reproducibility
+# np.random.seed(SEED)
+#
+#
+# # Defining a custom genotype, inheriting from base class Genotype
+# class MyGenotype(Genotype):
+#     def __init__(self):
+#         # We instantiate a new genotype for each individual which must have the following properties
+#         Genotype.__init__(self, orig_size_xyz=IND_SIZE)
+#
+#         self.add_network(CPPN(output_node_names=["weight"]))
+#
+#         self.to_phenotype_mapping.add_map(name="weight", tag="<ClassWeight>",
+#                                           func=np.abs)
+#
+# # Define a custom phenotype, inheriting from the Phenotype class
+# class MyPhenotype(Phenotype):
+#     def is_valid(self):
+#         return True
+#
+#
+# # Setting up the simulation object
+# my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
+#
+# labels = [1, 1, 2, 2]
+# scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
+# # labels = [1, 2]
+# # scenarios = {'pyramid_5' : pyramid_5, 'cube_5' : cube_5}
+# # Setting up the environment object
+# my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat, scenarios=scenarios)
+#
+# # Now specifying the objectives for the optimization.
+# # Creating an objectives dictionary
+# my_objective_dict = ObjectiveDict()
+# my_objective_dict.add_objective(name="fitness", maximize=None, tag="<ClassValue>", isArray=True)
+#
+# # Initializing a population of SoftBots
+# pressure_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
+#
+# # Setting up our optimization
+# my_optimization = ParetoOptimization(my_sim, my_env, pressure_pop)
+# my_optimization.evaluate = JustSimulateDontEvaluate
+#
+# # And, finally, our main
+# if __name__ == "__main__":
+#     my_optimization.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
+#                         directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
+#                         time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
+#                         save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
 
 #import matplotlib.image as mimg
 #import matplotlib.pyplot as plt
@@ -139,16 +139,17 @@ class AdditionalData(object):
     labels = []
     pressures = []
 
-
+loadedPressures = np.loadtxt("/home/utente/evosoro/evosoro/progetto/MatNorm.txt",delimiter = ',')
 additionalData = AdditionalData()
 additionalData.labels = labels
-additionalData.pressures = pressure_pop[0].fitness
+# additionalData.pressures = pressure_pop[0].fitness
+additionalData.pressures = loadedPressures
 
 # -------------------------- Esecuzione GA ---------------------------
 
 NUM_RANDOM_INDS = 100  # Number of random individuals to insert each generation
-MAX_GENS = 45  # Number of generations
-POPSIZE = 1000  # Population size (number of individuals in the population)
+MAX_GENS = 200  # Number of generations
+POPSIZE = 100  # Population size (number of individuals in the population)
 IND_SIZE = (21, 21, 1)  # Bounding box dimensions (x,y,z). e.g. IND_SIZE = (6, 6, 6) -> workspace is a cube of 6x6x6 voxels
 SIM_TIME = 5  # (seconds), including INIT_TIME!
 INIT_TIME = 1
@@ -160,7 +161,7 @@ SAVE_LINEAGES = False
 MAX_TIME = 8  # (hours) how long to wait before autosuspending
 EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
 
-RUN_DIR = "45_1000_fitnessclip_4000"  # Subdirectory where results are going to be generated
+RUN_DIR = "test"  # Subdirectory where results are going to be generated
 RUN_NAME = "grasper_calc_pressure"
 CHECKPOINT_EVERY = 1  # How often to save an snapshot of the execution state to later resume the algorithm
 SAVE_POPULATION_EVERY = 1  # How often (every x generations) we save a snapshot of the evolving population
@@ -200,7 +201,8 @@ my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_mat
 # Creating an objectives dictionary
 my_objective_dict = ObjectiveDict()
 my_objective_dict.add_objective(name="fitness", maximize=True, tag=None)
-my_objective_dict.add_objective(name="intraDistance", maximize=False, tag=None)
+# my_objective_dict.add_objective(name="intraDistance", maximize=False, tag=None)
+my_objective_dict.add_objective(name="sumOfAllWeights", maximize=False, tag=None)
 
 # Initializing a population of SoftBots
 my_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
@@ -213,5 +215,5 @@ my_optimization.evaluate = justEvaluateDontSimulate
 if __name__ == "__main__":
     my_optimization.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
                         directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
-                        time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
+                        time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,save_pareto = True,
                         save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES, additionalData=additionalData)
