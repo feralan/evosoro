@@ -103,10 +103,10 @@ sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  
 # # Setting up the simulation object
 # my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
 #
-# labels = [1, 1, 2, 2]
-# scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
-# # labels = [1, 2]
-# # scenarios = {'pyramid_5' : pyramid_5, 'cube_5' : cube_5}
+labels = [1, 1, 2, 2]
+scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
+# labels = [1, 2]
+# scenarios = {'pyramid_5' : pyramid_5, 'cube_5' : cube_5}
 # # Setting up the environment object
 # my_env = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat, scenarios=scenarios)
 #
