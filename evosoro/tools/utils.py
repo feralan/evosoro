@@ -277,3 +277,9 @@ def count_neighbors(output_state, mask=None):
                 num_neighbors[idx] += presence[neighbor]
 
     return num_neighbors
+
+def SetMatStiffness(mat,newStifCoeff):
+      newmat = np.asarray(mat[0])
+      newmat = newmat*(10**np.clip(newStifCoeff,-2,2))
+      mat[0] = newmat.tolist()
+      return mat
