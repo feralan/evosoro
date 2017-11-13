@@ -278,8 +278,10 @@ def count_neighbors(output_state, mask=None):
 
     return num_neighbors
 
-def SetMatStiffness(mat,newStifCoeff):
-      newmat = np.asarray(mat[0])
-      newmat = newmat*(10**np.clip(newStifCoeff,-2,2))
-      mat[0] = newmat.tolist()
-      return mat
+def SetMatStiffness(mat,MaterialID):
+    newmat = mat
+    for matline in newmat[0]:
+        print(matline)
+        for item in range(0,len(matline)):
+            matline[item] = MaterialID
+    return newmat
