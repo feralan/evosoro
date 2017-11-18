@@ -28,6 +28,7 @@ This setup is similar to the one described in:
     Related video: https://youtu.be/EXuR_soDnFo
 
 """
+#%%
 import random
 import numpy as np
 from scipy import stats
@@ -49,7 +50,7 @@ from evosoro.base import Sim, Env, ObjectiveDict
 from evosoro.networks import CPPN
 from evosoro.softbot import Genotype, Phenotype, Population
 from evosoro.tools.algorithms import ParetoOptimization
-from evosoro.tools.utils import count_occurrences, make_material_tree, SetMatStiffness
+from evosoro.tools.utils import SetMatStiffness
 from evosoro.tools.checkpointing import continue_from_checkpoint
 from evosoro.tools.evaluation import JustSimulateDontEvaluate
 from evosoro.tools.evaluation import justEvaluateDontSimulate
@@ -58,7 +59,10 @@ from evosoro.tools.evaluation import justEvaluateDontSimulate
 VOXELYZE_VERSION = '_voxcad_mod'
 sub.call("cp ../" + VOXELYZE_VERSION + "/voxelyzeMain/voxelyze .", shell=True)  # Making sure to have the most up-to-date version of the Voxelyze physics engine
 
-# # -------------------------------------- Generazione matrice delle pressioni 1 ----------------------------------------
+        
+        
+#%% # -------------------------------------- Inizializzazione variabili simulazione fisica ----------------------------------------
+
 #
 NUM_RANDOM_INDS = 0  # Number of random individuals to insert each generation
 MAX_GENS = 0  # Number of generations
@@ -68,8 +72,8 @@ SIM_TIME = 3  # (seconds), including INIT_TIME!
 INIT_TIME = 1
 DT_FRAC = 0.9  # Fraction of the optimal integration step. The lower, the more stable (and slower) the simulation.
 
-TIME_TO_TRY_AGAIN = 18000  # (seconds) wait this long before assuming simulation crashed and resending
-MAX_EVAL_TIME = 18000  # (seconds) wait this long before giving up on evaluating this individual
+TIME_TO_TRY_AGAIN = 54000  # (seconds) wait this long before assuming simulation crashed and resending
+MAX_EVAL_TIME = 54000  # (seconds) wait this long before giving up on evaluating this individual
 SAVE_LINEAGES = False
 MAX_TIME = 8  # (hours) how long to wait before autosuspending
 EXTRA_GENS = 0  # extra gens to run when continuing from checkpoint
@@ -101,44 +105,58 @@ class MyPhenotype(Phenotype):
 class AdditionalData(object):
     labels = []
     pressures = []
-    
-    
-RUN_DIR = "mat_soft"  # Subdirectory where results are going to be generated
-RUN_NAME = "mat_soft"
-#
-#
-# # Setting up the simulation object
-my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
-#
+  
 labels = [1, 1, 2, 2]
 scenarios = {'pyramid_5' : pyramid_5, 'pyramid_7' : pyramid_7, 'cube_3' : cube_3, 'cube_5' : cube_5}
-# labels = [1, 2]
-# scenarios = {'pyramid_5' : pyramid_5, 'cube_5' : cube_5}
+ 
+ 
+#%% # -------------------------------------- Generazione matrice delle pressioni 1 ----------------------------------------
+  
+RUN_DIR = "mat_soft"  # Subdirectory where results are going to be generated
+RUN_NAME = "mat_soft"
 
-# # Setting up the environment objects
-base_mat_soft = base_mat
-my_env_soft = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat_soft, scenarios=scenarios)
+additionalData_soft = AdditionalData()
+additionalData_soft.labels = labels
+try:
+    loadedPressures_soft = np.loadtxt("./"+RUN_DIR+"/SoftMatNormPy.txt",delimiter = ',')
+    additionalData_soft.pressures = loadedPressures_soft
+except:
 
+    # Setting up the simulation object
+    my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
+    
+    # Setting up the environment objects
+    base_mat_soft = base_mat
+    my_env_soft = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat_soft, scenarios=scenarios)
+    
+    # Now specifying the objectives for the optimization.
+    # Creating an objectives dictionary
+    my_objective_dict = ObjectiveDict()
+    my_objective_dict.add_objective(name="fitness", maximize=None, tag="<ClassValue>", isArray=True)
+    
+    # Initializing a population of SoftBots
+    pressure_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
+    
+     # Setting up our optimization
+    my_optimization_soft = ParetoOptimization(my_sim, my_env_soft, pressure_pop)
+    my_optimization_soft.evaluate = JustSimulateDontEvaluate
+    #
+    # # And, finally, our main
+    if __name__ == "__main__":
+        my_optimization_soft.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
+                            directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
+                            time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
+                            save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
 
-#
-# # Now specifying the objectives for the optimization.
-# # Creating an objectives dictionary
-my_objective_dict = ObjectiveDict()
-my_objective_dict.add_objective(name="fitness", maximize=None, tag="<ClassValue>", isArray=True)
-#
-# # Initializing a population of SoftBots
-pressure_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
-#
-# # Setting up our optimization
-my_optimization_soft = ParetoOptimization(my_sim, my_env_soft, pressure_pop)
-my_optimization_soft.evaluate = JustSimulateDontEvaluate
-#
-# # And, finally, our main
-if __name__ == "__main__":
-    my_optimization_soft.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
-                        directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
-                        time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
-                        save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
+    simPressures_soft = pressure_pop[0].fitness
+    np.savetxt("./"+RUN_DIR+"/SoftMatPressures.txt",simPressures_soft,delimiter = ',')
+    
+    vpress = np.hstack(simPressures_soft)
+    zpress = stats.zscore(vpress)+(np.mean(vpress)/np.std(vpress))
+    simPressures_soft = np.reshape(-zpress,[len(labels),441])
+    np.savetxt("./"+RUN_DIR+"/SoftMatNormPy.txt",simPressures_soft,delimiter = ',')
+        
+    additionalData_soft.pressures = simPressures_soft
 
 #import matplotlib.image as mimg
 #import matplotlib.pyplot as plt
@@ -147,60 +165,57 @@ if __name__ == "__main__":
 #plt.imshow(-imTry)
 
 
-simPressures_soft = pressure_pop[0].fitness
-np.savetxt("./SoftMatPressuresNew.txt",simPressures,delimiter = ',')
+#%% # -------------------------------------- Generazione matrice delle pressioni 2 ----------------------------------------
+#
+#
+#RUN_DIR = "mat_hard"  # Subdirectory where results are going to be generated
+#RUN_NAME = "mat_hard"
+#
+#additionalData_hard = AdditionalData()
+#additionalData_hard.labels = labels
+#
+#try:
+#    loadedPressures_hard = np.loadtxt("./"+RUN_DIR+"/HardMatNorm.txt",delimiter = ',')
+#    additionalData_hard.pressures = loadedPressures_hard
+#except:
+#    # Setting up the simulation object
+#    my_sim = Sim(dt_frac=DT_FRAC, simulation_time=SIM_TIME, fitness_eval_init_time=INIT_TIME)
+#        
+#    # Setting up the environment objects
+#    # cambio stiffness tappetino con funzione ad hoc "SetMatStiffness", importata da "Utils"
+#    base_mat_hard = SetMatStiffness(base_mat,2) #PROBLEMA: SetMatStiffness modifica sia base_mat_hard che base_mat che base_mat_soft
+#    my_env_hard = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat_hard, scenarios=scenarios)
+#    
+#    # Now specifying the objectives for the optimization.
+#    # Creating an objectives dictionary
+#    my_objective_dict = ObjectiveDict()
+#    my_objective_dict.add_objective(name="fitness", maximize=None, tag="<ClassValue>", isArray=True)
+#    
+#    # Initializing a population of SoftBots
+#    pressure_pop = Population(my_objective_dict, MyGenotype, MyPhenotype, pop_size=POPSIZE)
+#    
+#    my_optimization_hard = ParetoOptimization(my_sim, my_env_hard, pressure_pop)
+#    my_optimization_hard.evaluate = JustSimulateDontEvaluate
+#    
+#    if __name__ == "__main__":
+#        my_optimization_hard.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
+#                            directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
+#                            time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
+#                            save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
+#    
+#    
+#    simPressures_hard = pressure_pop[0].fitness
+#    np.savetxt("./HardMatPressuresNew.txt",simPressures_hard,delimiter = ',')
+#    
+#    vpress = np.hstack(simPressures_hard)
+#    zpress = stats.zscore(vpress)+(np.mean(vpress)/np.std(vpress))
+#    simPressures_hard = np.reshape(-zpress,[len(labels),441])
+#    np.savetxt("./HardMatNormPy.txt",simPressures_hard,delimiter = ',')
+#    
+#    additionalData_hard.pressures = simPressures_hard
+#
 
-vpress = np.hstack(simPressures_soft)
-zpress = stats.zscore(vpress)+(np.mean(vpress)/np.std(vpress))
-simPressures_soft = np.reshape(-zpress,[len(labels),441])
-
-np.savetxt("./SoftMatNormPy.txt",simPressures_soft,delimiter = ',')
-
-additionalData_soft = AdditionalData()
-additionalData_soft.labels = labels
-additionalData_soft.pressures = simPressures_soft
-
-#additionalData.pressures = pressure_pop[0].fitness
-
-#loadedPressures = np.loadtxt("./MatNorm.txt",delimiter = ',')
-#additionalData.pressures = loadedPressures
-
-
-# # -------------------------------------- Generazione matrice delle pressioni 2 ----------------------------------------
-
-# cambio stiffness tappetino con funzione ad hoc "SetMatStiffness", importata da "Utils"
-
-RUN_DIR = "mat_hard"  # Subdirectory where results are going to be generated
-RUN_NAME = "mat_hard"
-
-base_mat_hard = SetMatStiffness(base_mat,2) #PROBLEMA: SetMatStiffness modifica sia base_mat_hard che base_mat che base_mat_soft
-my_env_hard = Env(sticky_floor=0, time_between_traces=0, floor_enabled=0, softest_material=1, fixed_shape=base_mat_hard, scenarios=scenarios)
-
-my_optimization_hard = ParetoOptimization(my_sim, my_env_hard, pressure_pop)
-my_optimization_hard.evaluate = JustSimulateDontEvaluate
-
-if __name__ == "__main__":
-    my_optimization_hard.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
-                        directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
-                        time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,
-                        save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES)
-
-
-simPressures_hard = pressure_pop[0].fitness
-np.savetxt("./HardMatPressuresNew.txt",simPressures_hard,delimiter = ',')
-
-vpress = np.hstack(simPressures_hard)
-zpress = stats.zscore(vpress)+(np.mean(vpress)/np.std(vpress))
-simPressures_hard = np.reshape(-zpress,[len(labels),441])
-
-np.savetxt("./HardMatNormPy.txt",simPressures_hard,delimiter = ',')
-
-additionalData_hard = AdditionalData()
-additionalData_hard.labels = labels
-additionalData_hard.pressures = simPressures_hard
-
-
-# -------------------------- Esecuzione GA ---------------------------
+#%% -------------------------- Esecuzione GA ---------------------------
 
 NUM_RANDOM_INDS = 50  # Number of random individuals to insert each generation
 MAX_GENS = 20  # Number of generations
@@ -244,10 +259,13 @@ class MyPhenotype(Phenotype):
 #SEEDS = list(range(1,76,5))
 SEEDSLIST = list(range(1,7,5))
 
+if os.path.exists("./smartMat") == False:
+    os.mkdir("./smartMat")
+
 for SEED in SEEDSLIST:
     
-    RUN_DIR = "grasper_calc_pressure/seed_"+str(SEED)  # Subdirectory where results are going to be generated
-    RUN_NAME = "grasper_calc_pressure/seed_"+str(SEED)
+    RUN_DIR = "smartMat/seed_"+str(SEED)  # Subdirectory where results are going to be generated
+    RUN_NAME = "smartMat_seed_"+str(SEED)
 
     
     
@@ -276,4 +294,4 @@ for SEED in SEEDSLIST:
         my_optimization.run(max_hours_runtime=MAX_TIME, max_gens=MAX_GENS, num_random_individuals=NUM_RANDOM_INDS,
                             directory=RUN_DIR, name=RUN_NAME, max_eval_time=MAX_EVAL_TIME,
                             time_to_try_again=TIME_TO_TRY_AGAIN, checkpoint_every=CHECKPOINT_EVERY,save_pareto = True,
-                            save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES, additionalData=additionalData)
+                            save_vxa_every=SAVE_POPULATION_EVERY, save_lineages=SAVE_LINEAGES, additionalData=additionalData_soft)
