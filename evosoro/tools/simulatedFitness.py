@@ -30,7 +30,7 @@ def calcIntraDistance(weightMatrix, additionalData):
 
 def silhouetteCoeff(weightMatrix, additionalData):
     calculatedValues = [];
-    sil = 0
+    sil = 1
 
     for index in range(0, len(additionalData.pressures)):
         calculatedValues.append(np.sum(np.multiply(additionalData.pressures[index], weightMatrix)))
@@ -49,8 +49,11 @@ def silhouetteCoeff(weightMatrix, additionalData):
                 interCount += 1
         inter = inter/interCount
         intra = intra/intraCount
-        sil += (inter - intra) / (np.amax([inter, intra]))
+        if (inter - intra) != 0:
+            sil *= ((inter - intra) / (np.amax([inter, intra])))
+        else:
+            sil = 0
 
-    sil=sil/len(additionalData.pressures)
+    #sil=sil/len(additionalData.pressures)
 
     return sil
