@@ -16,9 +16,9 @@ CXXFLAGS      = -m64 -pipe -g -Wall -W -D_REENTRANT $(DEFINES)
 INCPATH       = -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4/QtOpenGL -I/usr/include/qt4/QtXml -I/usr/include/qt4 -I../../../../Libs/qwt/src -I. -I./../Voxelyze -I../Voxelyze -I./GeneratedFiles/$(Configuration) -IGeneratedFiles -I./../Utils -I/usr/include/qwt -I/usr/X11R6/include -IGeneratedFiles/release -IGeneratedFiles
 LINK          = g++
 LFLAGS        = -m64
-LIBS          = $(SUBLIBS)  -L/usr/lib/x86_64-linux-gnu -L/usr/X11R6/lib64 -lqwt -lglut -lGLU -lz -lm -lQtXml -lQtOpenGL -lQtGui -lQtCore -lGL -lpthread
+LIBS          = $(SUBLIBS)  -L/usr/lib/x86_64-linux-gnu -L/usr/X11R6/lib64 -lqwt -lglut -lGLU -lz -lm -lQtXml -lQtOpenGL -lQtGui -lQtCore -lGL -lpthread 
 AR            = ar cqs
-RANLIB        =
+RANLIB        = 
 QMAKE         = /usr/lib/x86_64-linux-gnu/qt4/bin/qmake
 TAR           = tar -cf
 COMPRESS      = gzip -9f
@@ -212,8 +212,8 @@ first: all
 
 all: Makefile $(TARGET)
 
-$(TARGET): GeneratedFiles/ui_vBCs.h GeneratedFiles/ui_vFEAInfo.h GeneratedFiles/ui_VoxCad.h GeneratedFiles/ui_vPalette.h GeneratedFiles/ui_vPhysics.h GeneratedFiles/ui_vPrimEdit.h GeneratedFiles/ui_vStructureEditor.h GeneratedFiles/ui_vTensile.h GeneratedFiles/ui_vVoxInfo.h GeneratedFiles/ui_vWorkSpace.h GeneratedFiles/ui_vVideoGen.h $(OBJECTS)
-	@$(CHK_DIR_EXISTS) release/ || $(MKDIR) release/
+$(TARGET): GeneratedFiles/ui_vBCs.h GeneratedFiles/ui_vFEAInfo.h GeneratedFiles/ui_VoxCad.h GeneratedFiles/ui_vPalette.h GeneratedFiles/ui_vPhysics.h GeneratedFiles/ui_vPrimEdit.h GeneratedFiles/ui_vStructureEditor.h GeneratedFiles/ui_vTensile.h GeneratedFiles/ui_vVoxInfo.h GeneratedFiles/ui_vWorkSpace.h GeneratedFiles/ui_vVideoGen.h $(OBJECTS)  
+	@$(CHK_DIR_EXISTS) release/ || $(MKDIR) release/ 
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 	{ test -n "$(DESTDIR)" && DESTDIR="$(DESTDIR)" || DESTDIR=.; } && test $$(gdb --version | sed -e 's,[^0-9][^0-9]*\([0-9]\)\.\([0-9]\).*,\1\2,;q') -gt 72 && gdb --nx --batch --quiet -ex 'set confirm off' -ex "save gdb-index $$DESTDIR" -ex quit '$(TARGET)' && test -f $(TARGET).gdb-index && objcopy --add-section '.gdb_index=$(TARGET).gdb-index' --set-section-flags '.gdb_index=readonly' '$(TARGET)' '$(TARGET)' && rm -f $(TARGET).gdb-index || true
 
@@ -279,12 +279,12 @@ VoxCad.pri:
 qmake:  FORCE
 	@$(QMAKE) -o Makefile VoxCad.pro
 
-dist:
-	@$(CHK_DIR_EXISTS) release/VoxCad1.0.0 || $(MKDIR) release/VoxCad1.0.0
+dist: 
+	@$(CHK_DIR_EXISTS) release/VoxCad1.0.0 || $(MKDIR) release/VoxCad1.0.0 
 	$(COPY_FILE) --parents $(SOURCES) $(DIST) release/VoxCad1.0.0/ && $(COPY_FILE) --parents VoxCad/VoxCad.h VoxCad/QVX_Edit.h VoxCad/QVX_Interfaces.h VoxCad/QVX_TensileTest.h VoxCad/Dlg_VideoCapture.h VoxCad/Dlg_3DBrush.h VoxCad/Dlg_BCs.h VoxCad/Dlg_EditPrim.h VoxCad/Dlg_FEAInfo.h VoxCad/Dlg_Palette.h VoxCad/Dlg_Physics.h VoxCad/Dlg_StructureEditor.h VoxCad/Dlg_Tensile.h VoxCad/Dlg_VoxInfo.h VoxCad/Dlg_Workspace.h QTUtils/QOpenGL.h QTUtils/QThreadWrap.h QTUtils/QSimplePlot.h Voxelyze/Utils/Array3D.h Voxelyze/Utils/GL_Utils.h Voxelyze/Utils/MarchCube.h Voxelyze/Utils/Mesh.h Voxelyze/Utils/Vec3D.h Voxelyze/Utils/XML_Rip.h Voxelyze/VX_Benchmark.h Voxelyze/VX_Bond.h Voxelyze/VX_Enums.h Voxelyze/VX_SimGA.h Voxelyze/VX_Environment.h Voxelyze/VX_FEA.h Voxelyze/VX_FRegion.h Voxelyze/VX_MeshUtil.h Voxelyze/VX_Object.h Voxelyze/VX_Sim.h Voxelyze/VX_Voxel.h Voxelyze/VXS_Bond.h Voxelyze/VXS_BondCollision.h Voxelyze/VXS_BondInternal.h Voxelyze/VXS_SimGLView.h Voxelyze/VXS_Voxel.h release/VoxCad1.0.0/ && $(COPY_FILE) --parents VoxCad/VoxCad.qrc release/VoxCad1.0.0/ && $(COPY_FILE) --parents VoxCad/main.cpp VoxCad/VoxCad.cpp QTUtils/QOpenGL.cpp QTUtils/QThreadWrap.cpp QTUtils/QSimplePlot.cpp VoxCad/QVX_Edit.cpp VoxCad/QVX_Interface.cpp VoxCad/QVX_TensileTest.cpp VoxCad/Dlg_VideoCapture.cpp VoxCad/Dlg_3DBrush.cpp VoxCad/Dlg_BCs.cpp VoxCad/Dlg_EditPrim.cpp VoxCad/Dlg_FEAInfo.cpp VoxCad/Dlg_Palette.cpp VoxCad/Dlg_Physics.cpp VoxCad/Dlg_StructureEditor.cpp VoxCad/Dlg_Tensile.cpp VoxCad/Dlg_VoxInfo.cpp VoxCad/Dlg_Workspace.cpp Voxelyze/Utils/Array3D.cpp Voxelyze/Utils/GL_Utils.cpp Voxelyze/Utils/MarchCube.cpp Voxelyze/Utils/Mesh.cpp Voxelyze/Utils/XML_Rip.cpp Voxelyze/VX_Benchmark.cpp Voxelyze/VX_Bond.cpp Voxelyze/VX_SimGA.cpp Voxelyze/VX_Environment.cpp Voxelyze/VX_FEA.cpp Voxelyze/VX_FRegion.cpp Voxelyze/VX_MeshUtil.cpp Voxelyze/VX_Object.cpp Voxelyze/VX_Sim.cpp Voxelyze/VX_Voxel.cpp Voxelyze/VXS_Bond.cpp Voxelyze/VXS_BondCollision.cpp Voxelyze/VXS_BondInternal.cpp Voxelyze/VXS_SimGLView.cpp Voxelyze/VXS_Voxel.cpp release/VoxCad1.0.0/ && $(COPY_FILE) --parents VoxCad/vBCs.ui VoxCad/vFEAInfo.ui VoxCad/VoxCad.ui VoxCad/vPalette.ui VoxCad/vPhysics.ui VoxCad/vPrimEdit.ui VoxCad/vStructureEditor.ui VoxCad/vTensile.ui VoxCad/vVoxInfo.ui VoxCad/vWorkSpace.ui VoxCad/vVideoGen.ui release/VoxCad1.0.0/ && (cd `dirname release/VoxCad1.0.0` && $(TAR) VoxCad1.0.0.tar VoxCad1.0.0 && $(COMPRESS) VoxCad1.0.0.tar) && $(MOVE) `dirname release/VoxCad1.0.0`/VoxCad1.0.0.tar.gz . && $(DEL_FILE) -r release/VoxCad1.0.0
 
 
-clean:compiler_clean
+clean:compiler_clean 
 	-$(DEL_FILE) $(OBJECTS)
 	-$(DEL_FILE) *~ core *.core
 
@@ -292,7 +292,7 @@ clean:compiler_clean
 ####### Sub-libraries
 
 distclean: clean
-	-$(DEL_FILE) $(TARGET)
+	-$(DEL_FILE) $(TARGET) 
 	-$(DEL_FILE) Makefile
 
 
@@ -715,7 +715,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_header_clean compiler_rcc_clean compiler_uic_clean
+compiler_clean: compiler_moc_header_clean compiler_rcc_clean compiler_uic_clean 
 
 ####### Compile
 
@@ -1396,61 +1396,61 @@ release/VXS_Voxel.o: Voxelyze/VXS_Voxel.cpp Voxelyze/VXS_Voxel.h \
 		Voxelyze/VX_MeshUtil.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/VXS_Voxel.o Voxelyze/VXS_Voxel.cpp
 
-release/moc_VoxCad.o: GeneratedFiles/release/moc_VoxCad.cpp
+release/moc_VoxCad.o: GeneratedFiles/release/moc_VoxCad.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_VoxCad.o GeneratedFiles/release/moc_VoxCad.cpp
 
-release/moc_QVX_Edit.o: GeneratedFiles/release/moc_QVX_Edit.cpp
+release/moc_QVX_Edit.o: GeneratedFiles/release/moc_QVX_Edit.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_QVX_Edit.o GeneratedFiles/release/moc_QVX_Edit.cpp
 
-release/moc_QVX_Interfaces.o: GeneratedFiles/release/moc_QVX_Interfaces.cpp
+release/moc_QVX_Interfaces.o: GeneratedFiles/release/moc_QVX_Interfaces.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_QVX_Interfaces.o GeneratedFiles/release/moc_QVX_Interfaces.cpp
 
-release/moc_QVX_TensileTest.o: GeneratedFiles/release/moc_QVX_TensileTest.cpp
+release/moc_QVX_TensileTest.o: GeneratedFiles/release/moc_QVX_TensileTest.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_QVX_TensileTest.o GeneratedFiles/release/moc_QVX_TensileTest.cpp
 
-release/moc_Dlg_VideoCapture.o: GeneratedFiles/release/moc_Dlg_VideoCapture.cpp
+release/moc_Dlg_VideoCapture.o: GeneratedFiles/release/moc_Dlg_VideoCapture.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_VideoCapture.o GeneratedFiles/release/moc_Dlg_VideoCapture.cpp
 
-release/moc_Dlg_3DBrush.o: GeneratedFiles/release/moc_Dlg_3DBrush.cpp
+release/moc_Dlg_3DBrush.o: GeneratedFiles/release/moc_Dlg_3DBrush.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_3DBrush.o GeneratedFiles/release/moc_Dlg_3DBrush.cpp
 
-release/moc_Dlg_BCs.o: GeneratedFiles/release/moc_Dlg_BCs.cpp
+release/moc_Dlg_BCs.o: GeneratedFiles/release/moc_Dlg_BCs.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_BCs.o GeneratedFiles/release/moc_Dlg_BCs.cpp
 
-release/moc_Dlg_EditPrim.o: GeneratedFiles/release/moc_Dlg_EditPrim.cpp
+release/moc_Dlg_EditPrim.o: GeneratedFiles/release/moc_Dlg_EditPrim.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_EditPrim.o GeneratedFiles/release/moc_Dlg_EditPrim.cpp
 
-release/moc_Dlg_FEAInfo.o: GeneratedFiles/release/moc_Dlg_FEAInfo.cpp
+release/moc_Dlg_FEAInfo.o: GeneratedFiles/release/moc_Dlg_FEAInfo.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_FEAInfo.o GeneratedFiles/release/moc_Dlg_FEAInfo.cpp
 
-release/moc_Dlg_Palette.o: GeneratedFiles/release/moc_Dlg_Palette.cpp
+release/moc_Dlg_Palette.o: GeneratedFiles/release/moc_Dlg_Palette.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_Palette.o GeneratedFiles/release/moc_Dlg_Palette.cpp
 
-release/moc_Dlg_Physics.o: GeneratedFiles/release/moc_Dlg_Physics.cpp
+release/moc_Dlg_Physics.o: GeneratedFiles/release/moc_Dlg_Physics.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_Physics.o GeneratedFiles/release/moc_Dlg_Physics.cpp
 
-release/moc_Dlg_StructureEditor.o: GeneratedFiles/release/moc_Dlg_StructureEditor.cpp
+release/moc_Dlg_StructureEditor.o: GeneratedFiles/release/moc_Dlg_StructureEditor.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_StructureEditor.o GeneratedFiles/release/moc_Dlg_StructureEditor.cpp
 
-release/moc_Dlg_Tensile.o: GeneratedFiles/release/moc_Dlg_Tensile.cpp
+release/moc_Dlg_Tensile.o: GeneratedFiles/release/moc_Dlg_Tensile.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_Tensile.o GeneratedFiles/release/moc_Dlg_Tensile.cpp
 
-release/moc_Dlg_VoxInfo.o: GeneratedFiles/release/moc_Dlg_VoxInfo.cpp
+release/moc_Dlg_VoxInfo.o: GeneratedFiles/release/moc_Dlg_VoxInfo.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_VoxInfo.o GeneratedFiles/release/moc_Dlg_VoxInfo.cpp
 
-release/moc_Dlg_Workspace.o: GeneratedFiles/release/moc_Dlg_Workspace.cpp
+release/moc_Dlg_Workspace.o: GeneratedFiles/release/moc_Dlg_Workspace.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_Dlg_Workspace.o GeneratedFiles/release/moc_Dlg_Workspace.cpp
 
-release/moc_QOpenGL.o: GeneratedFiles/release/moc_QOpenGL.cpp
+release/moc_QOpenGL.o: GeneratedFiles/release/moc_QOpenGL.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_QOpenGL.o GeneratedFiles/release/moc_QOpenGL.cpp
 
-release/moc_QThreadWrap.o: GeneratedFiles/release/moc_QThreadWrap.cpp
+release/moc_QThreadWrap.o: GeneratedFiles/release/moc_QThreadWrap.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_QThreadWrap.o GeneratedFiles/release/moc_QThreadWrap.cpp
 
-release/moc_QSimplePlot.o: GeneratedFiles/release/moc_QSimplePlot.cpp
+release/moc_QSimplePlot.o: GeneratedFiles/release/moc_QSimplePlot.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/moc_QSimplePlot.o GeneratedFiles/release/moc_QSimplePlot.cpp
 
-release/qrc_VoxCad.o: GeneratedFiles/qrc_VoxCad.cpp
+release/qrc_VoxCad.o: GeneratedFiles/qrc_VoxCad.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/qrc_VoxCad.o GeneratedFiles/qrc_VoxCad.cpp
 
 ####### Install
@@ -1460,3 +1460,4 @@ install:   FORCE
 uninstall:   FORCE
 
 FORCE:
+
